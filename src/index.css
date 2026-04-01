@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background-color: #0d0a07;
+    color: #e8dcc8;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    min-height: 100svh;
+  }
+}
+
+@layer utilities {
+  /* Scrollbar sutil no tema escuro */
+  .scrollbar-museum {
+    scrollbar-width: thin;
+    scrollbar-color: #3a2e1e #1a1510;
+  }
+  .scrollbar-museum::-webkit-scrollbar { width: 6px; }
+  .scrollbar-museum::-webkit-scrollbar-track { background: #1a1510; }
+  .scrollbar-museum::-webkit-scrollbar-thumb { background: #3a2e1e; border-radius: 3px; }
+
+  /* Linha de detalhe decorativa */
+  .museum-line::before {
+    content: '';
+    display: block;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom, #d4802a, transparent);
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  /* Shimmer para loading */
+  .shimmer {
+    background: linear-gradient(90deg, #221c14 25%, #2e2518 50%, #221c14 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to   { background-position: -200% 0; }
+  }
+}
