@@ -67,7 +67,7 @@ export function calcPerfil(groups, pessoa) {
     .filter(d => d.parsed.getTime() > 0)
     .sort((a, b) => a.parsed - b.parsed)
   const primeiro = datesValid[0]?.raw || null
-  const ultimo   = datesValid[datesValid.length - 1]?.raw || null
+  const primeiroItem = items.find(i => i.data === datesValid[0]?.raw) || items[0]
 
   // --- anos ---
   const byYear = {}
@@ -101,11 +101,10 @@ export function calcPerfil(groups, pessoa) {
     participacao,
     anosAtivos,
     primeiro:      formatDateShort(primeiro),
-    ultimo:        formatDateShort(ultimo),
     anoMaisAtivo,
     tipoFrequente,
     distribuicao,
-    topItems,
+    primeiroItem,
     items, // todos os itens (para word cloud)
   }
 }

@@ -98,17 +98,16 @@ function YearChart({ distribuicao }) {
   )
 }
 
-function TopPearls({ items }) {
-  if (items.length === 0) return null
+function PrimeiroRegistro({ item, dataFormatada }) {
+  if (!item) return null
   return (
     <section>
-      <SectionTitle icon="✨" title="Melhores pérolas" />
-      <div className="space-y-3">
-        {items.map((item, idx) => (
-          <div key={item.item_id || idx} className="rounded-xl border border-museum-border bg-museum-surface p-4">
-            <MediaRenderer item={item} compact={false} />
-          </div>
-        ))}
+      <SectionTitle icon="📜" title="Primeiro registro" />
+      <div className="rounded-xl border border-museum-border bg-museum-surface p-4 space-y-2">
+        {dataFormatada && dataFormatada !== '—' && (
+          <p className="text-xs text-museum-muted font-mono">{dataFormatada}</p>
+        )}
+        <MediaRenderer item={item} compact={false} />
       </div>
     </section>
   )
@@ -154,21 +153,19 @@ function PersonProfile({ groups, pessoa, rank, onBack }) {
       {/* Grid de estatísticas */}
       <section>
         <SectionTitle icon="📊" title="Estatísticas" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <StatCard label="% do acervo"     value={`${perfil.participacao}%`}  accent />
-          <StatCard label="Anos no acervo"  value={perfil.anosAtivos}          />
-          <StatCard label="Tipo favorito"   value={perfil.tipoFrequente}        />
-          <StatCard label="Primeiro registro" value={perfil.primeiro}           />
-          <StatCard label="Último registro"   value={perfil.ultimo}             />
-          <StatCard label="Ano mais ativo"    value={perfil.anoMaisAtivo}        />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <StatCard label="% do acervo"    value={`${perfil.participacao}%`} accent />
+          <StatCard label="Anos no acervo" value={perfil.anosAtivos}               />
+          <StatCard label="Tipo favorito"  value={perfil.tipoFrequente}             />
+          <StatCard label="Ano mais ativo" value={perfil.anoMaisAtivo}              />
         </div>
       </section>
 
+      {/* Primeiro registro */}
+      <PrimeiroRegistro item={perfil.primeiroItem} dataFormatada={perfil.primeiro} />
+
       {/* Word cloud */}
       <WordCloudView items={perfil.items} />
-
-      {/* Melhores pérolas */}
-      <TopPearls items={perfil.topItems} />
 
       {/* Gráfico por ano */}
       <YearChart distribuicao={perfil.distribuicao} />
