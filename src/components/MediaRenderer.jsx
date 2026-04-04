@@ -1,18 +1,19 @@
+import { useState } from 'react'
+import { resolveMediaUrl } from '../utils/resolveMediaUrl'
+
 /**
  * MediaRenderer
  *
- * Renderiza o conteúdo de um único item conforme seu tipo:
- *   texto  → quote estilizado
- *   imagem → imagem com clique para ampliar
- *   audio  → player HTML5 nativo
- *   video  → iframe embed ou <video>
+ * Renderiza um item conforme seu tipo, resolvendo automaticamente
+ * links do Google Drive para URLs embeddáveis.
  *
  * Props:
- *   item       — objeto normalizado com tipo, conteudo_texto, url_midia
- *   compact    — modo reduzido (para preview nos cards)
+ *   item     — objeto com tipo, conteudo_texto, url_midia
+ *   compact  — modo resumido para preview nos cards
  */
 export default function MediaRenderer({ item, compact = false }) {
-  const { tipo, conteudo_texto: texto, url_midia: url } = item
+  const { tipo, conteudo_texto: texto, url_midia: rawUrl } = item
+  const { url, useIframe } = resolveMediaUrl(rawUrl, tipo)
 
   if (tipo === 'texto') {
     return (
@@ -23,35 +24,69 @@ export default function MediaRenderer({ item, compact = false }) {
           ${compact ? 'text-sm line-clamp-3' : 'text-base md:text-lg'}
         `}
       >
-        {texto ? `"${texto}"` : <span className="text-museum-muted/40">sem conteúdo</span>}
+        {texto
+          ? `"${texto}"`
+          : <span className="text-museum-muted/40">sem conteúdo</span>
+        }
       </blockquote>
     )
   }
 
   if (tipo === 'imagem') {
-    if (!url) return <MediaMissing icon="🖼️" />
-    return compact
-      ? (
-        <div className="rounded-lg overflow-hidden bg-museum-surface aspect-video">
-          <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" />
-        </div>
-      )
-      : (
-        <a href={url} target="_blank" rel="noopener noreferrer" className="block rounded-xl overflow-hidden border border-museum-border">
-          <img src={url} alt="" className="w-full max-h-[70vh] object-contain bg-museum-surface" loading="lazy" />
-        </a>
-      )
-  }
-
-  if (tipo === 'audio') {
-    if (!url) return <MediaMissing icon="🎵" />
+    if (!url) return <MediaMissing icon="🖼️" label="Imagem não disponível" />
     if (compact) {
       return (
-        <div className="flex items-center gap-2 text-purple-400 text-xs bg-purple-400/10 border border-purple-400/20 rounded-lg px-3 py-2">
-          <span>🎵</span> <span>Áudio</span>
+        <div className="rounded-lg overflow-hidden bg-museum-surface aspect-video">
+          <img
+            src={url}
+            alt=""
+            className="w-full h-full object-cover"
+            loading="lazy"
+            onError={e => { e.target.style.display = 'none' }}
+          />
         </div>
       )
     }
+    return (
+      <a href={url} target="_blank" rel="noopener noreferrer" className="block rounded-xl overflow-hidden border border-museum-border">
+        <img
+          src={url}
+          alt=""
+          className="w-full max-h-[70vh] object-contain bg-museum-surface"
+          loading="lazy"
+          onError={e => { e.target.parentElement.replaceWith(Object.assign(document.createElement('p'), { textContent: 'Imagem indisponível', className: 'text-museum-muted text-sm p-4' })) }}
+        />
+      </a>
+    )
+  }
+
+  if (tipo === 'audio') {
+    if (!url) return <MediaMissing icon="🎵" label="Áudio não disponível" />
+
+    if (compact) {
+      return (
+        <div className="flex items-center gap-2 text-purple-400 text-xs bg-purple-400/10 border border-purple-400/20 rounded-lg px-3 py-2">
+          <span>🎵</span><span>Áudio — clique para ouvir</span>
+        </div>
+      )
+    }
+
+    // Google Drive → iframe com player nativo do Drive
+    if (useIframe) {
+      return (
+        <div className="rounded-xl overflow-hidden border border-museum-border bg-museum-surface">
+          <iframe
+            src={url}
+            title="player de áudio"
+            allow="autoplay"
+            className="w-full"
+            style={{ height: '80px', border: 'none' }}
+          />
+        </div>
+      )
+    }
+
+    // Arquivo direto → player HTML5 nativo
     return (
       <div className="rounded-xl bg-museum-surface border border-museum-border p-4 flex flex-col items-center gap-3">
         <span className="text-3xl">🎵</span>
@@ -64,29 +99,32 @@ export default function MediaRenderer({ item, compact = false }) {
   }
 
   if (tipo === 'video') {
-    if (!url) return <MediaMissing icon="🎬" />
+    if (!url) return <MediaMissing icon="🎬" label="Vídeo não disponível" />
+
     if (compact) {
       return (
         <div className="flex items-center gap-2 text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">
-          <span>🎬</span> <span>Vídeo</span>
+          <span>🎬</span><span>Vídeo — clique para assistir</span>
         </div>
       )
     }
-    const embedUrl = toEmbedUrl(url)
-    // URL externa que pode ser embutida
-    if (embedUrl !== url || url.includes('youtube') || url.includes('youtu.be') || url.includes('vimeo')) {
+
+    // Google Drive preview ou YouTube/Vimeo embed → iframe
+    if (useIframe) {
       return (
         <div className="rounded-xl overflow-hidden border border-museum-border aspect-video bg-black">
           <iframe
-            src={embedUrl}
-            title="vídeo"
+            src={url}
+            title="player de vídeo"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             className="w-full h-full"
+            style={{ border: 'none' }}
           />
         </div>
       )
     }
+
     // Arquivo de vídeo direto
     return (
       <div className="rounded-xl overflow-hidden border border-museum-border aspect-video bg-black">
@@ -101,22 +139,11 @@ export default function MediaRenderer({ item, compact = false }) {
   return null
 }
 
-function MediaMissing({ icon }) {
+function MediaMissing({ icon, label }) {
   return (
-    <div className="rounded-xl border border-museum-border bg-museum-surface aspect-video flex items-center justify-center text-museum-muted/30 text-4xl">
-      {icon}
+    <div className="rounded-xl border border-museum-border bg-museum-surface aspect-video flex flex-col items-center justify-center gap-2 text-museum-muted/40">
+      <span className="text-3xl">{icon}</span>
+      <span className="text-xs">{label}</span>
     </div>
   )
-}
-
-function toEmbedUrl(url) {
-  if (!url) return url
-  if (url.includes('/embed/')) return url
-  const short = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/)
-  if (short) return `https://www.youtube.com/embed/${short[1]}`
-  const watch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/)
-  if (watch) return `https://www.youtube.com/embed/${watch[1]}`
-  const vimeo = url.match(/vimeo\.com\/(\d+)/)
-  if (vimeo) return `https://player.vimeo.com/video/${vimeo[1]}`
-  return url
 }
