@@ -1,63 +1,29 @@
+import { useState } from 'react'
 import { resolveMediaUrl } from '../utils/resolveMediaUrl'
 
-/**
- * MediaRenderer
- *
- * Renderiza um item conforme seu tipo, resolvendo automaticamente
- * links do Google Drive para URLs embeddáveis.
- *
- * Props:
- *   item     — objeto com tipo, conteudo_texto, url_midia
- *   compact  — modo resumido para preview nos cards
- */
 export default function MediaRenderer({ item, compact = false }) {
   const { tipo, conteudo_texto: texto, url_midia: rawUrl } = item
-  const { url, useIframe } = resolveMediaUrl(rawUrl, tipo)
 
   if (tipo === 'texto') {
     return (
-      <blockquote
-        className={`
-          font-serif italic leading-relaxed text-museum-text
-          border-l-2 border-museum-accent/50 pl-3
-          ${compact ? 'text-sm line-clamp-3' : 'text-base md:text-lg'}
-        `}
-      >
+      <blockquote className={`
+        font-serif italic leading-relaxed text-museum-text
+        border-l-2 border-museum-accent/50 pl-3
+        ${compact ? 'text-sm line-clamp-3' : 'text-base md:text-lg'}
+      `}>
         {texto
           ? `"${texto}"`
-          : <span className="text-museum-muted/40">sem conteúdo</span>
-        }
+          : <span className="text-museum-muted/40">sem conteúdo</span>}
       </blockquote>
     )
   }
 
   if (tipo === 'imagem') {
-    if (!url) return <MediaMissing icon="🖼️" label="Imagem não disponível" />
-
-    // Preview compacto no card: ícone clicável (iframe não funciona bem em miniatura)
-    if (compact) {
-      return (
-        <div className="flex items-center gap-2 text-green-400 text-xs bg-green-400/10 border border-green-400/20 rounded-lg px-3 py-2">
-          <span>🖼️</span><span>Imagem — clique para ver</span>
-        </div>
-      )
-    }
-
-    // Modal expandido: iframe com o preview do Google Drive
-    return (
-      <div className="rounded-xl overflow-hidden border border-museum-border bg-museum-surface aspect-video">
-        <iframe
-          src={url}
-          title="imagem"
-          className="w-full h-full"
-          style={{ border: 'none' }}
-          allow="autoplay"
-        />
-      </div>
-    )
+    return <ImageRenderer rawUrl={rawUrl} compact={compact} />
   }
 
   if (tipo === 'audio') {
+    const { url, useIframe } = resolveMediaUrl(rawUrl, 'audio')
     if (!url) return <MediaMissing icon="🎵" label="Áudio não disponível" />
 
     if (compact) {
@@ -68,7 +34,6 @@ export default function MediaRenderer({ item, compact = false }) {
       )
     }
 
-    // Google Drive → iframe com player nativo do Drive
     if (useIframe) {
       return (
         <div className="rounded-xl overflow-hidden border border-museum-border bg-museum-surface">
@@ -83,19 +48,18 @@ export default function MediaRenderer({ item, compact = false }) {
       )
     }
 
-    // Arquivo direto → player HTML5 nativo
     return (
       <div className="rounded-xl bg-museum-surface border border-museum-border p-4 flex flex-col items-center gap-3">
         <span className="text-3xl">🎵</span>
         <audio controls className="w-full max-w-md" style={{ accentColor: '#d4802a' }}>
           <source src={url} />
-          Seu navegador não suporta áudio.
         </audio>
       </div>
     )
   }
 
   if (tipo === 'video') {
+    const { url, useIframe } = resolveMediaUrl(rawUrl, 'video')
     if (!url) return <MediaMissing icon="🎬" label="Vídeo não disponível" />
 
     if (compact) {
@@ -106,7 +70,6 @@ export default function MediaRenderer({ item, compact = false }) {
       )
     }
 
-    // Google Drive preview ou YouTube/Vimeo embed → iframe
     if (useIframe) {
       return (
         <div className="rounded-xl overflow-hidden border border-museum-border aspect-video bg-black">
@@ -122,18 +85,81 @@ export default function MediaRenderer({ item, compact = false }) {
       )
     }
 
-    // Arquivo de vídeo direto
     return (
       <div className="rounded-xl overflow-hidden border border-museum-border aspect-video bg-black">
         <video controls className="w-full h-full">
           <source src={url} />
-          Seu navegador não suporta vídeo.
         </video>
       </div>
     )
   }
 
   return null
+}
+
+/**
+ * ImageRenderer com fallback: tenta thumbnail do Drive como <img>.
+ * Se falhar (404, CORS, etc.), cai para o iframe /preview.
+ */
+function ImageRenderer({ rawUrl, compact }) {
+  const [failed, setFailed] = useState(false)
+
+  const { url: thumbUrl } = resolveMediaUrl(rawUrl, 'imagem', compact ? 'compact' : 'full')
+  const { url: previewUrl } = resolveMediaUrl(rawUrl, 'video') // /preview para fallback
+
+  if (!thumbUrl && !previewUrl) {
+    return <MediaMissing icon="🖼️" label="Imagem não disponível" />
+  }
+
+  // Compact: preview no card com thumbnail como <img>
+  if (compact) {
+    if (failed) {
+      // Fallback compacto: badge simples
+      return (
+        <div className="flex items-center gap-2 text-green-400 text-xs bg-green-400/10 border border-green-400/20 rounded-lg px-3 py-2">
+          <span>🖼️</span><span>Imagem — clique para ver</span>
+        </div>
+      )
+    }
+    return (
+      <div className="rounded-lg overflow-hidden bg-museum-surface aspect-video">
+        <img
+          src={thumbUrl}
+          alt=""
+          className="w-full h-full object-cover"
+          loading="lazy"
+          onError={() => setFailed(true)}
+        />
+      </div>
+    )
+  }
+
+  // Full (modal): thumbnail como <img>, fallback para iframe /preview
+  if (failed) {
+    return (
+      <div className="rounded-xl overflow-hidden border border-museum-border bg-museum-surface" style={{ minHeight: '300px' }}>
+        <iframe
+          src={previewUrl}
+          title="imagem"
+          className="w-full"
+          style={{ height: '500px', border: 'none' }}
+          allow="autoplay"
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div className="rounded-xl overflow-hidden border border-museum-border bg-museum-surface">
+      <img
+        src={thumbUrl}
+        alt=""
+        className="w-full max-h-[70vh] object-contain"
+        loading="lazy"
+        onError={() => setFailed(true)}
+      />
+    </div>
+  )
 }
 
 function MediaMissing({ icon, label }) {
