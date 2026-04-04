@@ -6,6 +6,7 @@ import SequenceModal from './components/SequenceModal'
 import EmptyState from './components/EmptyState'
 import JogoDosConjuges from './pages/JogoDosConjuges'
 import Ranking from './pages/Ranking'
+import HallDaFama from './pages/HallDaFama'
 import { usePearls } from './hooks/usePearls'
 
 export default function App() {
@@ -83,6 +84,13 @@ export default function App() {
         <>
           <SubNav onBack={() => setPage('home')} />
           <Ranking />
+        </>
+      )}
+
+      {page === 'hall' && (
+        <>
+          <SubNav onBack={() => setPage('home')} />
+          <HallDaFama />
         </>
       )}
     </div>
