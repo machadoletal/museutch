@@ -1,8 +1,9 @@
 const NAV_ITEMS = [
-  { key: 'home',    label: 'Acervo',           icon: '🏛️' },
-  { key: 'jogo',    label: 'Jogo dos Cônjuges', icon: '🎲' },
-  { key: 'ranking', label: 'Ranking',           icon: '🏆' },
-  { key: 'hall',    label: 'Hall da Fama',      icon: '🌟' },
+  { key: 'home',    label: 'Acervo',            icon: '🏛️' },
+  { key: 'jogo',    label: 'Jogo dos Cônjuges',  icon: '🎲' },
+  { key: 'ranking', label: 'Ranking',            icon: '🏆' },
+  { key: 'hall',    label: 'Hall da Fama',       icon: '🌟' },
+  { key: 'network', label: 'Rede',               icon: '🕸️' },
 ]
 
 export default function TopNav({ page, onNavigate }) {
