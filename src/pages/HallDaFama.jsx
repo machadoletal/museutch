@@ -219,7 +219,6 @@ export default function HallDaFama() {
         <>
           {/* Cabeçalho */}
           <div className="border-b border-museum-border">
-            <div className="h-1 bg-gradient-to-r from-transparent via-museum-accent to-transparent" />
             <div className="max-w-3xl mx-auto px-4 py-8 text-center">
               <div className="flex items-center justify-center gap-3 mb-3">
                 <div className="h-px flex-1 max-w-[60px] bg-gradient-to-r from-transparent to-museum-accent/40" />

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Header from './components/Header'
+import TopNav from './components/TopNav'
 import FilterBar from './components/FilterBar'
 import PearlCard from './components/PearlCard'
 import SequenceModal from './components/SequenceModal'
@@ -26,10 +27,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-museum-bg text-museum-text scrollbar-museum">
-      {/* O Header só aparece na home; o Jogo tem seu próprio cabeçalho */}
+      <TopNav page={page} onNavigate={setPage} />
+
       {page === 'home' && (
         <>
-          <Header totalCount={totalCount} page={page} onNavigate={setPage} />
+          <Header totalCount={totalCount} />
 
           <FilterBar
             search={search}             setSearch={setSearch}
@@ -73,43 +75,9 @@ export default function App() {
         </>
       )}
 
-      {page === 'jogo' && (
-        <>
-          <SubNav onBack={() => setPage('home')} />
-          <JogoDosConjuges />
-        </>
-      )}
-
-      {page === 'ranking' && (
-        <>
-          <SubNav onBack={() => setPage('home')} />
-          <Ranking />
-        </>
-      )}
-
-      {page === 'hall' && (
-        <>
-          <SubNav onBack={() => setPage('home')} />
-          <HallDaFama />
-        </>
-      )}
-    </div>
-  )
-}
-
-function SubNav({ onBack }) {
-  return (
-    <div className="border-b border-museum-border bg-museum-bg/95 backdrop-blur sticky top-0 z-20">
-      <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-        <button
-          onClick={onBack}
-          className="text-xs text-museum-muted hover:text-museum-accent transition flex items-center gap-1.5"
-        >
-          ← Acervo
-        </button>
-        <span className="text-xs text-museum-muted font-serif italic">Museu TCH</span>
-        <div className="w-16" />
-      </div>
+      {page === 'jogo' && <JogoDosConjuges />}
+      {page === 'ranking' && <Ranking />}
+      {page === 'hall' && <HallDaFama />}
     </div>
   )
 }
