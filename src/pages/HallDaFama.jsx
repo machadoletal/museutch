@@ -3,6 +3,7 @@ import { usePearls } from '../hooks/usePearls'
 import { getAllPersons, calcPerfil } from '../utils/calcPerfil'
 import { calcAllFifaStats, ARCHETYPE_LABEL } from '../utils/calcFifaStats'
 import { calcWordFreq } from '../utils/wordCloud'
+import { getPersonImage } from '../utils/personImages'
 import MediaRenderer from '../components/MediaRenderer'
 import FifaCard from '../components/FifaCard'
 
@@ -26,6 +27,20 @@ function personColor(name) {
 
 function Avatar({ name, size = 'md' }) {
   const sizes = { sm: 'w-8 h-8 text-sm', md: 'w-10 h-10 text-base', lg: 'w-16 h-16 text-2xl', xl: 'w-20 h-20 text-3xl' }
+  const [imgError, setImgError] = useState(false)
+  const imgSrc = getPersonImage(name)
+
+  if (imgSrc && !imgError) {
+    return (
+      <img
+        src={imgSrc}
+        alt={name}
+        onError={() => setImgError(true)}
+        className={`${sizes[size]} rounded-full object-cover object-top shrink-0 border-2 border-museum-border`}
+      />
+    )
+  }
+
   return (
     <div
       className={`${sizes[size]} rounded-full flex items-center justify-center font-bold text-white shrink-0`}

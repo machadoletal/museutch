@@ -3,6 +3,7 @@
  * Card colecionável estilo FIFA Ultimate Team para o Hall da Fama.
  */
 import { useState } from 'react'
+import { getPersonImage } from '../utils/personImages'
 
 function personColor(name) {
   const hue = (name || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % 360
@@ -75,6 +76,8 @@ export default function FifaCard({ entry, onClick }) {
   const { pessoa, overall, archetype, tier, stats } = entry
   const cfg = TIER[tier] || TIER.bronze
   const [hovered, setHovered] = useState(false)
+  const [imgError, setImgError] = useState(false)
+  const imgSrc = getPersonImage(pessoa)
 
   return (
     <button
@@ -139,19 +142,37 @@ export default function FifaCard({ entry, onClick }) {
 
           {/* Avatar — cresce para preencher o espaço central */}
           <div className="flex-1 flex items-center justify-center">
-            <div
-              className="rounded-full flex items-center justify-center font-black text-white shrink-0"
-              style={{
-                width: 'clamp(50px, 44%, 86px)',
-                aspectRatio: '1',
-                fontSize: 'clamp(1.3rem, 5.5vw, 2rem)',
-                backgroundColor: personColor(pessoa),
-                border: `2.5px solid ${cfg.avatarBorder}`,
-                boxShadow: `0 0 16px ${cfg.glow}`,
-              }}
-            >
-              {pessoa?.[0]?.toUpperCase() || '?'}
-            </div>
+            {imgSrc && !imgError ? (
+              <img
+                src={imgSrc}
+                alt={pessoa}
+                onError={() => setImgError(true)}
+                style={{
+                  width: 'clamp(50px, 44%, 86px)',
+                  aspectRatio: '1',
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  objectPosition: 'top center',
+                  border: `2.5px solid ${cfg.avatarBorder}`,
+                  boxShadow: `0 0 16px ${cfg.glow}`,
+                  flexShrink: 0,
+                }}
+              />
+            ) : (
+              <div
+                className="rounded-full flex items-center justify-center font-black text-white shrink-0"
+                style={{
+                  width: 'clamp(50px, 44%, 86px)',
+                  aspectRatio: '1',
+                  fontSize: 'clamp(1.3rem, 5.5vw, 2rem)',
+                  backgroundColor: personColor(pessoa),
+                  border: `2.5px solid ${cfg.avatarBorder}`,
+                  boxShadow: `0 0 16px ${cfg.glow}`,
+                }}
+              >
+                {pessoa?.[0]?.toUpperCase() || '?'}
+              </div>
+            )}
           </div>
 
           {/* Nome */}
