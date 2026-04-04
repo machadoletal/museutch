@@ -42,7 +42,7 @@ jobs:
           fi
           echo "Senha encontrada (${#STATICRYPT_PASSWORD} caracteres). Criptografando..."
         env:
-          STATICRYPT_PASSWORD: ${{ secrets.STATICRYPT_PASSWORD }}
+          STATICRYPT_PASSWORD: ${{ secrets.SITE_PASSWORD }}
 
       - name: Proteger com senha (StatiCrypt)
         run: |
@@ -57,7 +57,7 @@ jobs:
           echo "Tamanho do index.html após criptografia: $(wc -c < dist/index.html) bytes"
           grep -q "staticrypt" dist/index.html && echo "OK: index.html está criptografado" || echo "FALHOU: index.html não foi criptografado"
         env:
-          STATICRYPT_PASSWORD: ${{ secrets.STATICRYPT_PASSWORD }}
+          STATICRYPT_PASSWORD: ${{ secrets.SITE_PASSWORD }}
 
       - name: Upload artifact para Pages
         uses: actions/upload-pages-artifact@v3
