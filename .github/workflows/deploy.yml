@@ -31,11 +31,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build + proteger com senha
-        run: npm run build
+      - name: Build
+        run: npx vite build
+
+      - name: Proteger com senha (StatiCrypt)
+        run: |
+          npx staticrypt dist/index.html \
+            -d dist \
+            --remember 1 \
+            --short \
+            --template-title "Museu TCH" \
+            --template-instructions "Digite a senha para acessar o acervo." \
+            --template-placeholder "senha"
         env:
-          # Senha definida em: Settings → Secrets → Actions → SITE_PASSWORD
-          SITE_PASSWORD: ${{ secrets.SITE_PASSWORD }}
+          # Defina em: Settings → Secrets → Actions → STATICRYPT_PASSWORD
+          STATICRYPT_PASSWORD: ${{ secrets.STATICRYPT_PASSWORD }}
 
       - name: Upload artifact para Pages
         uses: actions/upload-pages-artifact@v3

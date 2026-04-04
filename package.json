@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && staticrypt dist/index.html --password $SITE_PASSWORD --output dist/index.html --remember 1440 --template-title 'Museu TCH' --template-instructions 'Digite a senha para acessar o acervo.' --short",
+    "build": "vite build && staticrypt dist/index.html -d dist --remember 1 --short --template-title 'Museu TCH' --template-instructions 'Digite a senha para acessar o acervo.' --template-placeholder 'senha'",
     "lint": "eslint .",
     "preview": "vite preview"
   },
