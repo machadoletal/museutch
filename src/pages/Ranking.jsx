@@ -43,7 +43,7 @@ export default function Ranking() {
             <div className="h-px flex-1 max-w-[60px] bg-gradient-to-l from-transparent to-museum-accent/40" />
           </div>
           <h1 className="font-serif text-3xl md:text-4xl font-bold text-museum-text">
-            Ranking de <span className="text-museum-accent italic">Pérolas</span>
+            Ranking do <span className="text-museum-accent italic">Museu TCH</span>
           </h1>
           <p className="mt-2 text-museum-muted text-sm">
             Quem mais contribuiu para o acervo do grupo.
