@@ -1,16 +1,18 @@
 import { useState, useMemo } from 'react'
 import { usePearls } from '../hooks/usePearls'
 import { getAllPersons, calcPerfil } from '../utils/calcPerfil'
+import { calcAllFifaStats, ARCHETYPE_LABEL } from '../utils/calcFifaStats'
 import { calcWordFreq } from '../utils/wordCloud'
 import MediaRenderer from '../components/MediaRenderer'
+import FifaCard from '../components/FifaCard'
 
 // Paleta de cores para word cloud
 const WORD_COLORS = [
-  '#d4802a','#e8a84e','#c06620',  // ambar/dourado
-  '#7c9fff','#5b7fde',             // azul
-  '#9b7fe8','#c084fc',             // roxo
-  '#4ade80','#6ee7b7',             // verde
-  '#f87171','#fb923c',             // vermelho/laranja
+  '#d4802a','#e8a84e','#c06620',
+  '#7c9fff','#5b7fde',
+  '#9b7fe8','#c084fc',
+  '#4ade80','#6ee7b7',
+  '#f87171','#fb923c',
 ]
 
 const FONT_SIZES = ['text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl']
@@ -36,12 +38,27 @@ function Avatar({ name, size = 'md' }) {
 
 // ─── Componentes do Perfil ────────────────────────────────────────────────────
 
-function StatCard({ label, value, sub, accent }) {
+function StatCard({ label, value, accent }) {
   return (
     <div className={`rounded-xl border p-4 ${accent ? 'border-museum-accent/30 bg-museum-accent/5' : 'border-museum-border bg-museum-surface'}`}>
       <div className={`font-bold text-lg truncate ${accent ? 'text-museum-accent' : 'text-museum-text'}`}>{value}</div>
-      {sub && <div className="text-xs text-museum-muted mt-0.5">{sub}</div>}
       <div className="text-xs text-museum-muted/60 mt-1">{label}</div>
+    </div>
+  )
+}
+
+function FifaStatBar({ label, value, color }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-xs font-mono text-museum-muted w-10 shrink-0 text-right">{label}</span>
+      <div className="flex-1 h-4 bg-museum-border/40 rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full flex items-center justify-end pr-2 transition-all duration-700"
+          style={{ width: `${value}%`, backgroundColor: color, minWidth: '2rem' }}
+        >
+          <span className="text-[10px] font-bold text-white">{value}</span>
+        </div>
+      </div>
     </div>
   )
 }
@@ -82,11 +99,7 @@ function YearChart({ distribuicao }) {
             <div className="flex-1 h-5 bg-museum-border/40 rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full flex items-center justify-end pr-2 transition-all duration-700"
-                style={{
-                  width: `${Math.round((count / maxCount) * 100)}%`,
-                  backgroundColor: '#d4802a',
-                  minWidth: '2rem',
-                }}
+                style={{ width: `${Math.round((count / maxCount) * 100)}%`, backgroundColor: '#d4802a', minWidth: '2rem' }}
               >
                 <span className="text-[10px] font-bold text-white">{count}</span>
               </div>
@@ -121,9 +134,19 @@ function SectionTitle({ icon, title }) {
   )
 }
 
-function PersonProfile({ groups, pessoa, rank, onBack }) {
+// Cores para as barras de atributo FIFA por tier
+const STAT_BAR_COLORS = {
+  icon:   '#f0c840',
+  gold:   '#d4802a',
+  silver: '#7a9ab8',
+  bronze: '#b87848',
+}
+
+function PersonProfile({ groups, pessoa, rank, overall, archetype, tier, stats, onBack }) {
   const perfil = useMemo(() => calcPerfil(groups, pessoa), [groups, pessoa])
   if (!perfil) return <p className="text-center text-museum-muted py-20">Perfil não encontrado.</p>
+
+  const barColor = STAT_BAR_COLORS[tier] || '#d4802a'
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-8 animate-fade-in">
@@ -138,17 +161,39 @@ function PersonProfile({ groups, pessoa, rank, onBack }) {
       {/* Cabeçalho do perfil */}
       <div className="rounded-2xl border border-museum-border bg-museum-card p-6 flex flex-col sm:flex-row items-center sm:items-start gap-5">
         <Avatar name={pessoa} size="xl" />
-        <div className="text-center sm:text-left">
-          <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+        <div className="text-center sm:text-left flex-1">
+          <div className="flex items-center justify-center sm:justify-start gap-2 mb-1 flex-wrap">
             {rank <= 3 && <span className="text-2xl">{MEDALS[rank]}</span>}
             <h2 className="font-serif text-2xl md:text-3xl font-bold text-museum-text">{pessoa}</h2>
           </div>
-          <p className="text-museum-accent font-medium">
-            {perfil.total} pérola{perfil.total !== 1 ? 's' : ''}
+          <div className="flex items-center justify-center sm:justify-start gap-2 mt-1 flex-wrap">
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold"
+              style={{ backgroundColor: `${STAT_BAR_COLORS[tier]}22`, color: STAT_BAR_COLORS[tier], border: `1px solid ${STAT_BAR_COLORS[tier]}55` }}
+            >
+              <span className="text-base leading-none">{overall}</span>
+              <span className="opacity-70">·</span>
+              <span>{archetype}</span>
+              <span className="opacity-60 font-normal">— {ARCHETYPE_LABEL[archetype]}</span>
+            </span>
+          </div>
+          <p className="text-xs text-museum-muted mt-2">
+            {perfil.total} pérola{perfil.total !== 1 ? 's' : ''} &bull; #{rank} no ranking
           </p>
-          <p className="text-xs text-museum-muted mt-1">#{rank} no ranking geral</p>
         </div>
       </div>
+
+      {/* Atributos FIFA */}
+      {stats && (
+        <section>
+          <SectionTitle icon="🎮" title="Atributos" />
+          <div className="rounded-xl border border-museum-border bg-museum-surface p-5 space-y-3">
+            {Object.entries(stats).map(([key, val]) => (
+              <FifaStatBar key={key} label={key.toUpperCase()} value={val} color={barColor} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Grid de estatísticas */}
       <section>
@@ -173,45 +218,17 @@ function PersonProfile({ groups, pessoa, rank, onBack }) {
   )
 }
 
-// ─── Grid de pessoas ──────────────────────────────────────────────────────────
-
-function PersonCard({ entry, onClick }) {
-  const { pessoa, total, rank } = entry
-  return (
-    <button
-      onClick={() => onClick(entry)}
-      className="
-        rounded-xl border border-museum-border bg-museum-card p-5
-        flex flex-col items-center gap-3 text-center
-        hover:border-museum-accent/40 hover:shadow-md hover:shadow-black/30
-        hover:-translate-y-0.5 transition-all duration-200 animate-slide-up
-        w-full
-      "
-    >
-      <div className="relative">
-        <Avatar name={pessoa} size="lg" />
-        {rank <= 3 && (
-          <span className="absolute -top-1 -right-1 text-base">{MEDALS[rank]}</span>
-        )}
-      </div>
-      <div>
-        <p className="font-serif font-semibold text-museum-text">{pessoa}</p>
-        <p className="text-xs text-museum-accent mt-0.5">
-          {total} pérola{total !== 1 ? 's' : ''}
-        </p>
-        <p className="text-xs text-museum-muted/50 font-mono mt-0.5">#{rank}</p>
-      </div>
-    </button>
-  )
-}
-
 // ─── Página principal ────────────────────────────────────────────────────────
 
 export default function HallDaFama() {
   const { groups, loading, error } = usePearls()
-  const [selected, setSelected] = useState(null) // { pessoa, rank }
+  const [selected, setSelected] = useState(null)
 
   const persons = useMemo(() => getAllPersons(groups), [groups])
+  const fifaPersons = useMemo(
+    () => (groups.length > 0 ? calcAllFifaStats(groups, persons) : []),
+    [groups, persons],
+  )
 
   return (
     <div className="min-h-screen bg-museum-bg text-museum-text flex flex-col">
@@ -219,7 +236,7 @@ export default function HallDaFama() {
         <>
           {/* Cabeçalho */}
           <div className="border-b border-museum-border">
-            <div className="max-w-3xl mx-auto px-4 py-8 text-center">
+            <div className="max-w-4xl mx-auto px-4 py-8 text-center">
               <div className="flex items-center justify-center gap-3 mb-3">
                 <div className="h-px flex-1 max-w-[60px] bg-gradient-to-r from-transparent to-museum-accent/40" />
                 <span className="text-xl">🌟</span>
@@ -229,28 +246,30 @@ export default function HallDaFama() {
                 Hall da <span className="text-museum-accent italic">Fama</span>
               </h1>
               <p className="mt-2 text-museum-muted text-sm">
-                Clique em uma pessoa para ver o perfil completo.
+                Clique em um card para ver o perfil completo.
               </p>
             </div>
           </div>
 
-          {/* Grid */}
-          <div className="flex-1 max-w-3xl mx-auto w-full px-4 py-8">
+          {/* Grid de cards */}
+          <div className="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
             {loading && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="shimmer rounded-xl h-36" />
+                  <div key={i} className="shimmer rounded-2xl" style={{ aspectRatio: '5 / 7' }} />
                 ))}
               </div>
             )}
+
             {error && <p className="text-center text-red-400 text-sm">{error}</p>}
+
             {!loading && !error && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {persons.map(entry => (
-                  <PersonCard
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {fifaPersons.map(entry => (
+                  <FifaCard
                     key={entry.pessoa}
                     entry={entry}
-                    onClick={e => setSelected(e)}
+                    onClick={setSelected}
                   />
                 ))}
               </div>
@@ -264,6 +283,10 @@ export default function HallDaFama() {
           groups={groups}
           pessoa={selected.pessoa}
           rank={selected.rank}
+          overall={selected.overall}
+          archetype={selected.archetype}
+          tier={selected.tier}
+          stats={selected.stats}
           onBack={() => setSelected(null)}
         />
       )}
