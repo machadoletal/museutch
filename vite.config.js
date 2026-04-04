@@ -5,5 +5,5 @@ import react from '@vitejs/plugin-react'
 // Para raiz do domínio (Netlify, Vercel, domínio próprio), mantenha base: '/'
 export default defineConfig({
   plugins: [react()],
-  base: '/',
+  base: '/museutch/',
 })
