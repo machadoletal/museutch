@@ -10,7 +10,7 @@
 /**
  * Extrai o ano de uma string de data no formato "dd/mm/yyyy" ou "yyyy-mm-dd".
  */
-function parseAno(dataStr) {
+export function parseAno(dataStr) {
   if (!dataStr) return null
   // yyyy-mm-dd
   if (/^\d{4}-\d{2}-\d{2}$/.test(dataStr)) return parseInt(dataStr.slice(0, 4), 10)

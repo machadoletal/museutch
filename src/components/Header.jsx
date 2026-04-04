@@ -46,6 +46,9 @@ export default function Header({ totalCount, page, onNavigate }) {
           <NavButton active={page === 'jogo'} onClick={() => onNavigate('jogo')}>
             🎲 Jogo dos Cônjuges
           </NavButton>
+          <NavButton active={page === 'ranking'} onClick={() => onNavigate('ranking')}>
+            🏆 Ranking
+          </NavButton>
         </nav>
       </div>
     </header>

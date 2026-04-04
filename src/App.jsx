@@ -5,6 +5,7 @@ import PearlCard from './components/PearlCard'
 import SequenceModal from './components/SequenceModal'
 import EmptyState from './components/EmptyState'
 import JogoDosConjuges from './pages/JogoDosConjuges'
+import Ranking from './pages/Ranking'
 import { usePearls } from './hooks/usePearls'
 
 export default function App() {
@@ -73,23 +74,34 @@ export default function App() {
 
       {page === 'jogo' && (
         <>
-          {/* Barra de nav mínima no topo do jogo */}
-          <div className="border-b border-museum-border bg-museum-bg/95 backdrop-blur sticky top-0 z-20">
-            <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-              <button
-                onClick={() => setPage('home')}
-                className="text-xs text-museum-muted hover:text-museum-accent transition flex items-center gap-1.5"
-              >
-                ← Acervo
-              </button>
-              <span className="text-xs text-museum-muted font-serif italic">Museu TCH</span>
-              <div className="w-16" /> {/* espaçador para centralizar */}
-            </div>
-          </div>
-
+          <SubNav onBack={() => setPage('home')} />
           <JogoDosConjuges />
         </>
       )}
+
+      {page === 'ranking' && (
+        <>
+          <SubNav onBack={() => setPage('home')} />
+          <Ranking />
+        </>
+      )}
+    </div>
+  )
+}
+
+function SubNav({ onBack }) {
+  return (
+    <div className="border-b border-museum-border bg-museum-bg/95 backdrop-blur sticky top-0 z-20">
+      <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+        <button
+          onClick={onBack}
+          className="text-xs text-museum-muted hover:text-museum-accent transition flex items-center gap-1.5"
+        >
+          ← Acervo
+        </button>
+        <span className="text-xs text-museum-muted font-serif italic">Museu TCH</span>
+        <div className="w-16" />
+      </div>
     </div>
   )
 }
