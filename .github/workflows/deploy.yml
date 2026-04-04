@@ -34,17 +34,29 @@ jobs:
       - name: Build
         run: npx vite build
 
+      - name: Verificar senha configurada
+        run: |
+          if [ -z "$STATICRYPT_PASSWORD" ]; then
+            echo "ERRO: secret STATICRYPT_PASSWORD não encontrado ou vazio"
+            exit 1
+          fi
+          echo "Senha encontrada (${#STATICRYPT_PASSWORD} caracteres). Criptografando..."
+        env:
+          STATICRYPT_PASSWORD: ${{ secrets.STATICRYPT_PASSWORD }}
+
       - name: Proteger com senha (StatiCrypt)
         run: |
           npx staticrypt dist/index.html \
             -d dist \
+            -p "$STATICRYPT_PASSWORD" \
             --remember 1 \
             --short \
             --template-title "Museu TCH" \
             --template-instructions "Digite a senha para acessar o acervo." \
             --template-placeholder "senha"
+          echo "Tamanho do index.html após criptografia: $(wc -c < dist/index.html) bytes"
+          grep -q "staticrypt" dist/index.html && echo "OK: index.html está criptografado" || echo "FALHOU: index.html não foi criptografado"
         env:
-          # Defina em: Settings → Secrets → Actions → STATICRYPT_PASSWORD
           STATICRYPT_PASSWORD: ${{ secrets.STATICRYPT_PASSWORD }}
 
       - name: Upload artifact para Pages
