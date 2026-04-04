@@ -10,7 +10,7 @@
  *   https://drive.google.com/uc?id=FILE_ID
  *
  * Saída por tipo:
- *   imagem → lh3.googleusercontent.com/d/FILE_ID  (CDN direto, sem CORS)
+ *   imagem → drive.google.com/file/d/FILE_ID/preview  (iframe — mais confiável)
  *   audio  → drive.google.com/file/d/FILE_ID/preview  (player nativo do Drive)
  *   video  → drive.google.com/file/d/FILE_ID/preview  (player nativo do Drive)
  */
@@ -50,10 +50,11 @@ export function resolveMediaUrl(url, tipo) {
 
   switch (tipo) {
     case 'imagem':
-      // lh3 é o CDN público do Google; funciona como src de <img> sem CORS
+      // O preview do Drive é a forma mais confiável — funciona como iframe
+      // sem problemas de CORS ou redirect para login
       return {
-        url: `https://lh3.googleusercontent.com/d/${id}`,
-        useIframe: false,
+        url: `https://drive.google.com/file/d/${id}/preview`,
+        useIframe: true,
       }
 
     case 'audio':

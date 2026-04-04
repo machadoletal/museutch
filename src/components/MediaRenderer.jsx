@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { resolveMediaUrl } from '../utils/resolveMediaUrl'
 
 /**
@@ -34,29 +33,27 @@ export default function MediaRenderer({ item, compact = false }) {
 
   if (tipo === 'imagem') {
     if (!url) return <MediaMissing icon="🖼️" label="Imagem não disponível" />
+
+    // Preview compacto no card: ícone clicável (iframe não funciona bem em miniatura)
     if (compact) {
       return (
-        <div className="rounded-lg overflow-hidden bg-museum-surface aspect-video">
-          <img
-            src={url}
-            alt=""
-            className="w-full h-full object-cover"
-            loading="lazy"
-            onError={e => { e.target.style.display = 'none' }}
-          />
+        <div className="flex items-center gap-2 text-green-400 text-xs bg-green-400/10 border border-green-400/20 rounded-lg px-3 py-2">
+          <span>🖼️</span><span>Imagem — clique para ver</span>
         </div>
       )
     }
+
+    // Modal expandido: iframe com o preview do Google Drive
     return (
-      <a href={url} target="_blank" rel="noopener noreferrer" className="block rounded-xl overflow-hidden border border-museum-border">
-        <img
+      <div className="rounded-xl overflow-hidden border border-museum-border bg-museum-surface aspect-video">
+        <iframe
           src={url}
-          alt=""
-          className="w-full max-h-[70vh] object-contain bg-museum-surface"
-          loading="lazy"
-          onError={e => { e.target.parentElement.replaceWith(Object.assign(document.createElement('p'), { textContent: 'Imagem indisponível', className: 'text-museum-muted text-sm p-4' })) }}
+          title="imagem"
+          className="w-full h-full"
+          style={{ border: 'none' }}
+          allow="autoplay"
         />
-      </a>
+      </div>
     )
   }
 
