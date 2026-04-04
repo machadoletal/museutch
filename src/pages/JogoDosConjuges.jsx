@@ -133,25 +133,16 @@ export default function JogoDosConjuges() {
                   "{texto}"
                 </blockquote>
 
-                {/* Área do autor */}
-                <div className="mt-8 flex flex-col items-center gap-3">
-                  <div
-                    className={`transition-all duration-500 ease-out ${
-                      revealed
-                        ? 'opacity-100 translate-y-0'
-                        : 'opacity-0 translate-y-2 pointer-events-none select-none'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
+                {/* Área do autor — renderização condicional, nome nunca fica no DOM oculto */}
+                <div className="mt-8 flex justify-center items-center min-h-[56px]">
+                  {revealed ? (
+                    <div className="flex items-center gap-3 animate-fade-in">
                       <Avatar name={pessoa} size="lg" />
                       <span className="font-serif text-2xl font-semibold text-museum-accent">
                         {pessoa}
                       </span>
                     </div>
-                  </div>
-
-                  {/* Placeholder oculto (mantém altura) */}
-                  {!revealed && (
+                  ) : (
                     <div className="flex items-center gap-3">
                       <div className="w-14 h-14 rounded-full border-2 border-dashed border-museum-border flex items-center justify-center text-museum-muted/30 text-xl">
                         ?
