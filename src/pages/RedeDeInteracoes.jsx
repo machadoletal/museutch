@@ -5,9 +5,10 @@ import { getPersonImage } from '../utils/personImages'
 
 // ─── Constantes de layout ─────────────────────────────────────────────────────
 
-const LAYOUT_R  = 200   // raio do círculo de posicionamento
-const NODE_R    = 22    // raio de cada nó
-const LABEL_GAP = 14    // distância do rótulo à borda do nó
+const LAYOUT_RX = 255   // raio horizontal (elipse mais larga)
+const LAYOUT_RY = 175   // raio vertical
+const NODE_R    = 28    // raio de cada nó (era 22)
+const LABEL_GAP = 16    // distância do rótulo à borda do nó
 
 function personColor(name) {
   const hue = (name || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % 360
@@ -26,7 +27,7 @@ function anchor(cos) {
 function StatsCard({ nodeId, nodeData, links, onClose }) {
   const connections = getTopConnections(nodeId, links)
   return (
-    <div className="absolute top-4 right-4 z-20 w-56 rounded-2xl border border-museum-border bg-museum-card shadow-2xl animate-scale-in">
+    <div className="m-4 rounded-2xl border border-museum-border bg-museum-card animate-scale-in">
       {/* Cabeçalho */}
       <div className="flex items-center gap-2.5 px-4 pt-4 pb-3 border-b border-museum-border/50">
         <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: personColor(nodeId) }} />
@@ -88,15 +89,15 @@ export default function RedeDeInteracoes() {
     [nodes]
   )
 
-  // Posição fixa em círculo
+  // Posição fixa em elipse
   const positioned = useMemo(() => {
     const N = sortedNodes.length
     return sortedNodes.map((node, i) => {
       const angle = (i / N) * 2 * Math.PI - Math.PI / 2
       return {
         ...node,
-        x:   Math.cos(angle) * LAYOUT_R,
-        y:   Math.sin(angle) * LAYOUT_R,
+        x:   Math.cos(angle) * LAYOUT_RX,
+        y:   Math.sin(angle) * LAYOUT_RY,
         cos: Math.cos(angle),
         sin: Math.sin(angle),
       }
@@ -125,10 +126,12 @@ export default function RedeDeInteracoes() {
     return s
   }, [activeId, links])
 
-  // ViewBox — margem para labels e anel de seleção
-  const pad   = NODE_R + LABEL_GAP + 36
-  const vSize = LAYOUT_R + pad
-  const vb    = `${-vSize} ${-vSize} ${vSize * 2} ${vSize * 2}`
+  // ViewBox elíptico — margem para labels e anel de seleção
+  const padX = NODE_R + LABEL_GAP + 50
+  const padY = NODE_R + LABEL_GAP + 38
+  const vW   = LAYOUT_RX + padX
+  const vH   = LAYOUT_RY + padY
+  const vb   = `${-vW} ${-vH} ${vW * 2} ${vH * 2}`
 
   const selectedData = selected ? nodeMap[selected] : null
 
@@ -162,16 +165,18 @@ export default function RedeDeInteracoes() {
         )}
       </div>
 
-      {/* Área do grafo */}
-      <div className="flex-1 flex items-center justify-center relative p-4">
+      {/* Área principal: grafo à esquerda, painel à direita */}
+      <div className="flex-1 flex min-h-0 overflow-hidden">
 
+        {/* Grafo */}
+        <div className="flex-1 flex items-center justify-center p-4 min-w-0 relative">
         {nodes.length === 0 ? (
           <p className="text-museum-muted/50 text-sm">Nenhuma sequência encontrada.</p>
         ) : (
           <svg
             viewBox={vb}
             className="w-full"
-            style={{ maxWidth: 640, maxHeight: '78vh' }}
+            style={{ maxHeight: '80vh' }}
             onClick={e => { if (e.target === e.currentTarget) setSelected(null) }}
           >
             {/* Clip paths para as imagens */}
@@ -260,8 +265,8 @@ export default function RedeDeInteracoes() {
                   {/* Rótulo */}
                   <text x={lx} y={ly}
                     textAnchor={anchor(node.cos)} dominantBaseline="middle"
-                    fill={isSel ? '#d4802a' : isHov ? '#e8dcc8' : '#8a7a62'}
-                    fontSize={11} fontWeight={isSel ? 'bold' : 'normal'}
+                    fill={isSel ? '#d4802a' : isHov ? '#f0e4cc' : '#a8947a'}
+                    fontSize={12} fontWeight={isSel ? 'bold' : 'normal'}
                     fontFamily="Inter, sans-serif"
                     style={{ transition: 'fill .2s', pointerEvents: 'none' }}
                   >{node.id}</text>
@@ -271,22 +276,30 @@ export default function RedeDeInteracoes() {
           </svg>
         )}
 
-        {/* Card de estatísticas */}
-        {selected && selectedData && (
-          <StatsCard
-            nodeId={selected}
-            nodeData={selectedData}
-            links={links}
-            onClose={() => setSelected(null)}
-          />
-        )}
-
         {/* Hint */}
         {!selected && nodes.length > 0 && (
           <p className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] text-museum-muted/20 font-mono pointer-events-none select-none">
             clique para ver detalhes
           </p>
         )}
+        </div>
+
+        {/* Painel direito — sempre reservado */}
+        <div className="w-64 shrink-0 border-l border-museum-border/20 flex flex-col justify-center">
+          {selected && selectedData ? (
+            <StatsCard
+              nodeId={selected}
+              nodeData={selectedData}
+              links={links}
+              onClose={() => setSelected(null)}
+            />
+          ) : nodes.length > 0 && (
+            <p className="text-[11px] text-museum-muted/20 text-center px-6">
+              Clique em uma pessoa para ver as conexões
+            </p>
+          )}
+        </div>
+
       </div>
     </div>
   )
