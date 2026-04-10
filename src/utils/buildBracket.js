@@ -38,24 +38,40 @@ function shuffle(arr) {
 
 /**
  * Inicializa o bracket com TODOS os itens fornecidos.
- * Embaralha, calcula próxima potência de 2, preenche com BYEs (null).
+ * Embaralha, calcula próxima potência de 2, distribui BYEs (null) de forma
+ * que cada BYE fique emparelhado com um item real — nunca BYE vs BYE.
+ *
+ * Layout: pares reais-reais primeiro, depois pares real-BYE no final.
+ * Garante: para todo confronto (a, b), no máximo um deles é null.
  */
 export function initBracket(items) {
   const shuffled = shuffle(items)
   const bracketSize = nextPowerOf2(shuffled.length)
   const totalRounds = Math.log2(bracketSize)
+  const n = shuffled.length
+  const byeCount = bracketSize - n
 
-  // Preencher com BYEs ao fim até atingir a potência de 2
-  const padded = [...shuffled]
-  while (padded.length < bracketSize) padded.push(null)
+  // Itens que ficam em confrontos puramente reais: 2n - bracketSize
+  // Itens restantes (byeCount) ganham um BYE como adversário
+  const realRealCount = n - byeCount  // = 2n - bracketSize
+
+  const padded = []
+  // Pares reais-reais
+  for (let i = 0; i < realRealCount; i++) padded.push(shuffled[i])
+  // Pares real-BYE
+  for (let i = realRealCount; i < n; i++) {
+    padded.push(shuffled[i])
+    padded.push(null)
+  }
+  // padded.length === bracketSize sempre
 
   return {
-    roundItems:   padded,  // array flat: pares consecutivos = confrontos
+    roundItems:   padded,
     matchupIndex: 0,
     roundNumber:  0,
     totalRounds,
     bracketSize,
-    roundWinners: [],      // vencedores acumulados na rodada atual
+    roundWinners: [],
   }
 }
 

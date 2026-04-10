@@ -6,7 +6,7 @@ import {
   totalMatchups, countCompletedMatchups,
 } from '../utils/buildBracket'
 
-const STORAGE_STATE = 'museutch_bracket_v1'
+const STORAGE_STATE = 'museutch_bracket_v2'
 const STORAGE_USER  = 'museutch_usuario'
 const SEND_ENDPOINT = '' // URL do Google Apps Script — configurar depois
 
