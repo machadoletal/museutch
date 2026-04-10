@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { fetchItems } from '../utils/dataLoader'
+import { groupPearls } from '../utils/groupPearls'
 import {
   initBracket, pickAndAdvance,
   totalMatchups, countCompletedMatchups,
@@ -8,6 +9,23 @@ import {
 const STORAGE_STATE = 'museutch_bracket_v1'
 const STORAGE_USER  = 'museutch_usuario'
 const SEND_ENDPOINT = '' // URL do Google Apps Script — configurar depois
+
+/**
+ * Monta as entradas do bracket: uma entrada por grupo que contenha
+ * ao menos um item de texto com conteúdo.
+ */
+function buildEntries(items) {
+  const groups = groupPearls(items)
+  return groups
+    .map(g => ({
+      grupo_id:  g.grupo_id,
+      data:      g.data,
+      grupo:     g.grupo,
+      pessoas:   g.pessoas,
+      textItems: g.items.filter(i => i.tipo === 'texto' && i.conteudo_texto.length > 0),
+    }))
+    .filter(e => e.textItems.length > 0)
+}
 
 // ─── IdentifyScreen ───────────────────────────────────────────────────────────
 
@@ -64,7 +82,10 @@ function IdentifyScreen({ onStart, error }) {
 
 // ─── MatchupCard ──────────────────────────────────────────────────────────────
 
-function MatchupCard({ item, onPick }) {
+function MatchupCard({ entry, onPick }) {
+  const { textItems, pessoas, data } = entry
+  const isSequence = textItems.length > 1
+
   return (
     <button
       onClick={onPick}
@@ -73,18 +94,37 @@ function MatchupCard({ item, onPick }) {
         hover:border-museum-accent/50 hover:bg-museum-accent/5 hover:scale-[1.015]
         active:scale-[0.99] transition-all duration-200 group"
     >
+      {/* Cabeçalho */}
       <div className="flex items-center gap-2 shrink-0">
         <span className="text-[10px] text-museum-muted/50 font-mono uppercase tracking-wider flex-1 truncate">
-          {item.pessoa}
+          {pessoas.join(', ')}
         </span>
         <span className="text-[10px] text-museum-muted/35 font-mono shrink-0">
-          {item.data}
+          {data}
         </span>
       </div>
 
-      <p className="flex-1 text-museum-text text-sm leading-relaxed font-serif overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 8, WebkitBoxOrient: 'vertical' }}>
-        &ldquo;{item.conteudo_texto}&rdquo;
-      </p>
+      {/* Textos */}
+      <div className="flex-1 overflow-hidden flex flex-col gap-2">
+        {isSequence ? (
+          textItems.map((ti, i) => (
+            <div key={i} className="flex flex-col gap-0.5">
+              <span className="text-[9px] text-museum-accent/50 font-mono uppercase tracking-wide">
+                {ti.pessoa}
+              </span>
+              <p className="text-museum-text text-sm leading-relaxed font-serif overflow-hidden"
+                style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
+                &ldquo;{ti.conteudo_texto}&rdquo;
+              </p>
+            </div>
+          ))
+        ) : (
+          <p className="flex-1 text-museum-text text-sm leading-relaxed font-serif overflow-hidden"
+            style={{ display: '-webkit-box', WebkitLineClamp: 8, WebkitBoxOrient: 'vertical' }}>
+            &ldquo;{textItems[0].conteudo_texto}&rdquo;
+          </p>
+        )}
+      </div>
 
       <div className="shrink-0 text-center pt-1">
         <span className="text-xs text-museum-accent/50 group-hover:text-museum-accent transition-colors font-medium">
@@ -99,8 +139,8 @@ function MatchupCard({ item, onPick }) {
 
 function PlayingScreen({ state, onPick }) {
   const { roundItems, matchupIndex, roundNumber, totalRounds, bracketSize } = state
-  const pairA = roundItems[matchupIndex * 2]
-  const pairB = roundItems[matchupIndex * 2 + 1]
+  const entryA = roundItems[matchupIndex * 2]
+  const entryB = roundItems[matchupIndex * 2 + 1]
 
   const matchupsInRound = Math.floor(roundItems.length / 2)
   const done  = countCompletedMatchups(roundNumber, matchupIndex, bracketSize)
@@ -131,13 +171,13 @@ function PlayingScreen({ state, onPick }) {
 
       {/* Confronto */}
       <div className="flex-1 flex gap-3 min-h-0">
-        <MatchupCard item={pairA} onPick={() => onPick(pairA)} />
+        <MatchupCard entry={entryA} onPick={() => onPick(entryA)} />
 
         <div className="shrink-0 flex items-center justify-center w-6">
           <span className="text-museum-muted/25 font-serif text-lg italic select-none">vs</span>
         </div>
 
-        <MatchupCard item={pairB} onPick={() => onPick(pairB)} />
+        <MatchupCard entry={entryB} onPick={() => onPick(entryB)} />
       </div>
     </div>
   )
@@ -147,6 +187,7 @@ function PlayingScreen({ state, onPick }) {
 
 function ChampionScreen({ champion, usuario, onReset }) {
   const [sendStatus, setSendStatus] = useState('idle') // idle | sending | sent | error
+  const isSequence = champion.textItems.length > 1
 
   async function handleSend() {
     if (!SEND_ENDPOINT) {
@@ -157,8 +198,9 @@ function ChampionScreen({ champion, usuario, onReset }) {
     try {
       const body = {
         usuario,
-        campea:    champion.conteudo_texto,
-        pessoa:    champion.pessoa,
+        grupo_id:  champion.grupo_id,
+        campea:    champion.textItems.map(i => i.conteudo_texto).join(' / '),
+        pessoas:   champion.pessoas.join(', '),
         data:      champion.data,
         timestamp: new Date().toISOString(),
       }
@@ -186,15 +228,29 @@ function ChampionScreen({ champion, usuario, onReset }) {
         )}
       </div>
 
-      <div className="w-full max-w-sm rounded-2xl border-2 border-museum-accent/40 bg-museum-card p-6 space-y-3">
+      <div className="w-full max-w-sm rounded-2xl border-2 border-museum-accent/40 bg-museum-card p-6 space-y-4">
         <div className="flex items-center gap-2 justify-center text-[10px] font-mono text-museum-muted/50">
-          <span className="uppercase tracking-wider">{champion.pessoa}</span>
+          <span className="uppercase tracking-wider">{champion.pessoas.join(', ')}</span>
           <span className="text-museum-muted/25">·</span>
           <span>{champion.data}</span>
         </div>
-        <p className="text-museum-text text-base leading-relaxed font-serif italic">
-          &ldquo;{champion.conteudo_texto}&rdquo;
-        </p>
+
+        {isSequence ? (
+          <div className="space-y-3 text-left">
+            {champion.textItems.map((ti, i) => (
+              <div key={i} className="space-y-0.5">
+                <p className="text-[9px] text-museum-accent/60 font-mono uppercase tracking-wide">{ti.pessoa}</p>
+                <p className="text-museum-text text-sm leading-relaxed font-serif italic">
+                  &ldquo;{ti.conteudo_texto}&rdquo;
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-museum-text text-base leading-relaxed font-serif italic">
+            &ldquo;{champion.textItems[0].conteudo_texto}&rdquo;
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col items-center gap-2 w-full max-w-sm">
@@ -275,9 +331,9 @@ export default function BracketDasPearls() {
     setLoadError(null)
     try {
       const items = await fetchItems()
-      const textItems = items.filter(i => i.tipo === 'texto' && i.conteudo_texto.length > 0)
-      if (textItems.length < 2) throw new Error('Pérolas insuficientes para iniciar o torneio.')
-      const initial = initBracket(textItems)
+      const entries = buildEntries(items)
+      if (entries.length < 2) throw new Error('Pérolas insuficientes para iniciar o torneio.')
+      const initial = initBracket(entries)
       localStorage.removeItem(STORAGE_STATE)
       setState(initial)
       setScreen('playing')
