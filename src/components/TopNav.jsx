@@ -4,6 +4,7 @@ const NAV_ITEMS = [
   { key: 'ranking', label: 'Ranking',            icon: '🏆' },
   { key: 'hall',    label: 'Hall da Fama',       icon: '🌟' },
   { key: 'network', label: 'Rede',               icon: '🕸️' },
+  { key: 'bracket', label: 'Bracket',            icon: '⚔️' },
 ]
 
 export default function TopNav({ page, onNavigate }) {
