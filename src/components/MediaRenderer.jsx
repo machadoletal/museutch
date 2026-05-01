@@ -7,7 +7,7 @@ export default function MediaRenderer({ item, compact = false }) {
   if (tipo === 'texto') {
     return (
       <blockquote className={`
-        font-serif italic leading-relaxed text-museum-text
+        font-serif italic leading-relaxed text-museum-text whitespace-pre-wrap
         border-l-2 border-museum-accent/50 pl-3
         ${compact ? 'text-sm line-clamp-3' : 'text-base md:text-lg'}
       `}>

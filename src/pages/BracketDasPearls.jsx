@@ -113,14 +113,14 @@ function MatchupCard({ entry, onPick }) {
                 {ti.pessoa}
               </span>
               <p className="text-museum-text text-sm leading-relaxed font-serif overflow-hidden"
-                style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
+                style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', whiteSpace: 'pre-wrap' }}>
                 &ldquo;{ti.conteudo_texto}&rdquo;
               </p>
             </div>
           ))
         ) : (
           <p className="flex-1 text-museum-text text-sm leading-relaxed font-serif overflow-hidden"
-            style={{ display: '-webkit-box', WebkitLineClamp: 8, WebkitBoxOrient: 'vertical' }}>
+            style={{ display: '-webkit-box', WebkitLineClamp: 8, WebkitBoxOrient: 'vertical', whiteSpace: 'pre-wrap' }}>
             &ldquo;{textItems[0].conteudo_texto}&rdquo;
           </p>
         )}
@@ -247,7 +247,7 @@ function ChampionScreen({ champion, usuario, onReset }) {
             ))}
           </div>
         ) : (
-          <p className="text-museum-text text-base leading-relaxed font-serif italic">
+          <p className="text-museum-text text-base leading-relaxed font-serif italic whitespace-pre-wrap">
             &ldquo;{champion.textItems[0].conteudo_texto}&rdquo;
           </p>
         )}
