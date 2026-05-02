@@ -48,8 +48,8 @@ export default function PearlCard({ group, onClick }) {
   const tipoKey = isSequence && tipos.length > 1 ? 'mixed' : tipo
   const tipoCfg = TIPO_CONFIG[tipoKey] || TIPO_CONFIG.texto
 
-  // Item principal para preview
-  const mainItem = items[0]
+  // Item principal para preview: destaque marcado na planilha, ou o primeiro item
+  const mainItem = group.destaqueItem ?? items[0]
 
   return (
     <article

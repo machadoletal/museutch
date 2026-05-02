@@ -24,6 +24,7 @@ function normalizeRow(raw) {
     url_midia:     String(raw.url_midia  ?? '').trim(),
     ordem:         parseInt(raw.ordem, 10) || 0,
     sequencial:    String(raw.sequencial ?? 'nao').trim().toLowerCase(),
+    destaque:      String(raw.destaque   ?? 'nao').trim().toLowerCase(),
     // campos extras opcionais
     titulo:        String(raw.titulo     ?? '').trim(),
     tags:          String(raw.tags       ?? '').trim(),

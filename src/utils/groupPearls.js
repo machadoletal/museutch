@@ -66,20 +66,24 @@ export function groupPearls(items) {
     // mas guardamos todos para busca
     const tipos = [...new Set(sorted.map(i => i.tipo))]
 
+    // Item de destaque para preview (sequências com "destaque: sim"), senão o primeiro
+    const destaqueItem = sorted.find(i => i.destaque === 'sim') ?? first
+
     grupos.push({
       grupo_id,
-      data:       first.data,
-      ano:        parseAno(first.data),
-      _date:      parseDate(first.data),  // usado só para ordenação
-      grupo:      first.grupo,
-      pessoas:    [...pessoasSet],
+      data:        first.data,
+      ano:         parseAno(first.data),
+      _date:       parseDate(first.data),  // usado só para ordenação
+      grupo:       first.grupo,
+      pessoas:     [...pessoasSet],
       // pessoa primária (do primeiro item) para filtro simples
-      pessoa:     first.pessoa,
-      tipo:       first.tipo,             // tipo do primeiro item
+      pessoa:      first.pessoa,
+      tipo:        first.tipo,             // tipo do primeiro item
       tipos,                              // todos os tipos presentes
-      isSequence: sorted.length > 1,
-      itemCount:  sorted.length,
-      items:      sorted,
+      isSequence:  sorted.length > 1,
+      itemCount:   sorted.length,
+      items:       sorted,
+      destaqueItem,                       // item a exibir no preview da página principal
     })
   }
 
