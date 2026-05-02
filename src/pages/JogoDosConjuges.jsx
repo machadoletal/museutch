@@ -40,7 +40,10 @@ export default function JogoDosConjuges() {
 
   useEffect(() => {
     if (groups.length === 0) return
-    const filtered = groups.filter(g => !g.isSequence && g.tipo === 'texto' && g.items[0]?.conteudo_texto?.trim())
+    const filtered = groups.filter(g => {
+      if (!g.isSequence) return g.tipo === 'texto' && g.items[0]?.conteudo_texto?.trim()
+      return g.destaqueItem?.conteudo_texto?.trim()
+    })
     setPool(filtered)
   }, [groups])
 
@@ -70,9 +73,9 @@ export default function JogoDosConjuges() {
     sortear()
   }
 
-  const item = current?.items[0]
+  const item = current?.isSequence ? current?.destaqueItem : current?.items[0]
   const texto = item?.conteudo_texto || ''
-  const pessoa = current?.pessoa || ''
+  const pessoa = item?.pessoa || current?.pessoa || ''
 
   return (
     <div className="min-h-screen bg-museum-bg text-museum-text flex flex-col">
