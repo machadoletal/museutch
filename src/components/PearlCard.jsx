@@ -51,6 +51,12 @@ export default function PearlCard({ group, onClick }) {
   // Item principal para preview: destaque marcado na planilha, ou o primeiro item
   const mainItem = group.destaqueItem ?? items[0]
 
+  // Para grupos com texto + imagem, mostrar os dois tipos no preview
+  const hasMixedTextImage = tipos.includes('texto') && tipos.includes('imagem')
+  const secondaryItem = hasMixedTextImage
+    ? items.find(i => i.tipo !== mainItem.tipo)
+    : null
+
   return (
     <article
       onClick={() => onClick(group)}
@@ -90,11 +96,22 @@ export default function PearlCard({ group, onClick }) {
         {/* Preview do conteúdo principal */}
         <MediaRenderer item={mainItem} compact />
 
+        {/* Segundo tipo (texto + imagem) */}
+        {secondaryItem && (
+          <div className="mt-2">
+            <MediaRenderer item={secondaryItem} compact />
+          </div>
+        )}
+
         {/* Indicador de sequência */}
         {isSequence && (
           <div className="mt-3 flex items-center gap-1.5 text-xs text-museum-muted border-t border-museum-border pt-3">
             <span className="text-museum-accent">▸</span>
-            <span>{group.itemCount} mensagens — clique para ver a sequência</span>
+            <span>
+              {hasMixedTextImage && group.itemCount === 2
+                ? 'texto + imagem — clique para ver'
+                : `${group.itemCount} mensagens — clique para ver a sequência`}
+            </span>
           </div>
         )}
       </div>
