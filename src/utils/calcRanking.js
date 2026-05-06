@@ -4,7 +4,6 @@
  * Agrega itens brutos do acervo por pessoa, respeitando filtro de ano.
  * Cada item associado a uma pessoa conta como 1 pérola para ela.
  */
-import { parseAno } from './groupPearls'
 
 /**
  * Retorna o ranking de pessoas ordenado do maior para o menor.
@@ -14,15 +13,15 @@ import { parseAno } from './groupPearls'
  * @returns {{ rank, pessoa, count, pct }[]}
  */
 export function calcRanking(groups, ano = 'Todos') {
-  const items = groups.flatMap(g => g.items)
-
   const filtered = ano === 'Todos'
-    ? items
-    : items.filter(item => parseAno(item.data) === Number(ano))
+    ? groups
+    : groups.filter(g => g.ano === Number(ano))
 
+  // Conta 1 entrada por grupo por pessoa, independente de quantos itens
+  // a pessoa tem dentro do mesmo grupo.
   const counts = {}
-  for (const item of filtered) {
-    for (const pessoa of item.pessoas_item ?? []) {
+  for (const group of filtered) {
+    for (const pessoa of group.pessoas) {
       counts[pessoa] = (counts[pessoa] || 0) + 1
     }
   }
@@ -45,8 +44,7 @@ export function calcRanking(groups, ano = 'Todos') {
  * Extrai os anos disponíveis nos itens, ordenados do mais recente.
  */
 export function getAvailableYears(groups) {
-  const items = groups.flatMap(g => g.items)
-  const years = new Set(items.map(i => parseAno(i.data)).filter(Boolean))
+  const years = new Set(groups.map(g => g.ano).filter(Boolean))
   return Array.from(years).sort((a, b) => b - a)
 }
 
