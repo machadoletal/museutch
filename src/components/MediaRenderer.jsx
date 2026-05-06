@@ -3,23 +3,38 @@ import { resolveMediaUrl } from '../utils/resolveMediaUrl'
 
 export default function MediaRenderer({ item, compact = false }) {
   const { tipo, conteudo_texto: texto, url_midia: rawUrl } = item
+  const hasText  = texto?.trim().length > 0
+  const hasMedia = rawUrl?.trim().length > 0
 
   if (tipo === 'texto') {
     return (
-      <blockquote className={`
-        font-serif italic leading-relaxed text-museum-text whitespace-pre-wrap
-        border-l-2 border-museum-accent/50 pl-3
-        ${compact ? 'text-sm line-clamp-3' : 'text-base md:text-lg'}
-      `}>
-        {texto
-          ? `"${texto}"`
-          : <span className="text-museum-muted/40">sem conteúdo</span>}
-      </blockquote>
+      <div className={hasText && hasMedia && !compact ? 'space-y-3' : undefined}>
+        <blockquote className={`
+          font-serif italic leading-relaxed text-museum-text whitespace-pre-wrap
+          border-l-2 border-museum-accent/50 pl-3
+          ${compact ? 'text-sm line-clamp-3' : 'text-base md:text-lg'}
+        `}>
+          {hasText
+            ? `"${texto}"`
+            : <span className="text-museum-muted/40">sem conteúdo</span>}
+        </blockquote>
+        {hasMedia && !compact && <ImageRenderer rawUrl={rawUrl} compact={false} />}
+      </div>
     )
   }
 
   if (tipo === 'imagem') {
-    return <ImageRenderer rawUrl={rawUrl} compact={compact} />
+    return (
+      <div className={hasText && !compact ? 'space-y-2' : undefined}>
+        <ImageRenderer rawUrl={rawUrl} compact={compact} />
+        {hasText && (
+          <p className={`font-serif italic whitespace-pre-wrap text-museum-text
+            ${compact ? 'text-xs line-clamp-2 text-museum-muted' : 'text-sm leading-relaxed'}`}>
+            {texto}
+          </p>
+        )}
+      </div>
+    )
   }
 
   if (tipo === 'audio') {
@@ -28,32 +43,31 @@ export default function MediaRenderer({ item, compact = false }) {
 
     if (compact) {
       return (
-        <div className="flex items-center gap-2 text-purple-400 text-xs bg-purple-400/10 border border-purple-400/20 rounded-lg px-3 py-2">
-          <span>🎵</span><span>Áudio — clique para ouvir</span>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-purple-400 text-xs bg-purple-400/10 border border-purple-400/20 rounded-lg px-3 py-2">
+            <span>🎵</span><span>Áudio — clique para ouvir</span>
+          </div>
+          {hasText && <p className="text-xs text-museum-muted font-serif italic line-clamp-2">{texto}</p>}
         </div>
       )
     }
 
-    if (useIframe) {
-      return (
-        <div className="rounded-xl overflow-hidden border border-museum-border bg-museum-surface">
-          <iframe
-            src={url}
-            title="player de áudio"
-            allow="autoplay"
-            className="w-full"
-            style={{ height: '80px', border: 'none' }}
-          />
-        </div>
-      )
-    }
-
-    return (
+    const player = useIframe ? (
+      <div className="rounded-xl overflow-hidden border border-museum-border bg-museum-surface">
+        <iframe src={url} title="player de áudio" allow="autoplay" className="w-full" style={{ height: '80px', border: 'none' }} />
+      </div>
+    ) : (
       <div className="rounded-xl bg-museum-surface border border-museum-border p-4 flex flex-col items-center gap-3">
         <span className="text-3xl">🎵</span>
         <audio controls className="w-full max-w-md" style={{ accentColor: '#d4802a' }}>
           <source src={url} />
         </audio>
+      </div>
+    )
+    return (
+      <div className={hasText ? 'space-y-2' : undefined}>
+        {player}
+        {hasText && <p className="text-sm font-serif italic whitespace-pre-wrap text-museum-text leading-relaxed">{texto}</p>}
       </div>
     )
   }
@@ -64,32 +78,37 @@ export default function MediaRenderer({ item, compact = false }) {
 
     if (compact) {
       return (
-        <div className="flex items-center gap-2 text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">
-          <span>🎬</span><span>Vídeo — clique para assistir</span>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">
+            <span>🎬</span><span>Vídeo — clique para assistir</span>
+          </div>
+          {hasText && <p className="text-xs text-museum-muted font-serif italic line-clamp-2">{texto}</p>}
         </div>
       )
     }
 
-    if (useIframe) {
-      return (
-        <div className="rounded-xl overflow-hidden border border-museum-border aspect-video bg-black">
-          <iframe
-            src={url}
-            title="player de vídeo"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="w-full h-full"
-            style={{ border: 'none' }}
-          />
-        </div>
-      )
-    }
-
-    return (
+    const player = useIframe ? (
+      <div className="rounded-xl overflow-hidden border border-museum-border aspect-video bg-black">
+        <iframe
+          src={url}
+          title="player de vídeo"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className="w-full h-full"
+          style={{ border: 'none' }}
+        />
+      </div>
+    ) : (
       <div className="rounded-xl overflow-hidden border border-museum-border aspect-video bg-black">
         <video controls className="w-full h-full">
           <source src={url} />
         </video>
+      </div>
+    )
+    return (
+      <div className={hasText ? 'space-y-2' : undefined}>
+        {player}
+        {hasText && <p className="text-sm font-serif italic whitespace-pre-wrap text-museum-text leading-relaxed">{texto}</p>}
       </div>
     )
   }
