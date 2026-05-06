@@ -62,12 +62,16 @@ export function calcPerfil(groups, pessoa) {
   const total        = items.length
   const participacao = totalAll > 0 ? Math.round((total / totalAll) * 100) : 0
 
-  // --- datas ---
-  const sortedByDate = [...items]
-    .filter(i => parseDate(i.data).getTime() > 0)
-    .sort((a, b) => parseDate(a.data) - parseDate(b.data))
-  const primeiroItem = sortedByDate[0] || items[0]
-  const primeiro = primeiroItem?.data || null
+  // --- primeiro registro (grupo_id numericamente mais baixo ligado à pessoa) ---
+  const personGroups = groups.filter(g => g.pessoas.includes(pessoa))
+  const oldestGroup = [...personGroups].sort((a, b) => {
+    const aId = parseInt(a.grupo_id, 10)
+    const bId = parseInt(b.grupo_id, 10)
+    if (!isNaN(aId) && !isNaN(bId)) return aId - bId
+    return String(a.grupo_id).localeCompare(String(b.grupo_id))
+  })[0]
+  const primeiroItem = oldestGroup?.destaqueItem || oldestGroup?.items?.[0] || items[0]
+  const primeiro = oldestGroup?.data || null
 
   // --- anos ---
   const byYear = {}
