@@ -8,7 +8,6 @@ import EmptyState from './components/EmptyState'
 import JogoDosConjuges from './pages/JogoDosConjuges'
 import Ranking from './pages/Ranking'
 import HallDaFama from './pages/HallDaFama'
-import RedeDeInteracoes from './pages/RedeDeInteracoes'
 import BracketDasPearls from './pages/BracketDasPearls'
 import { usePearls } from './hooks/usePearls'
 
@@ -82,7 +81,6 @@ export default function App() {
       {page === 'jogo'    && <JogoDosConjuges />}
       {page === 'ranking' && <Ranking />}
       {page === 'hall'    && <HallDaFama />}
-      {page === 'network' && <RedeDeInteracoes />}
       {page === 'bracket' && <BracketDasPearls />}
     </div>
   )

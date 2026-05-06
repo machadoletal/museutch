@@ -3,7 +3,6 @@ const NAV_ITEMS = [
   { key: 'jogo',    label: 'Jogo dos Cônjuges',  icon: '🎲' },
   { key: 'ranking', label: 'Ranking',            icon: '🏆' },
   { key: 'hall',    label: 'Hall da Fama',       icon: '🌟' },
-  { key: 'network', label: 'Rede',               icon: '🕸️' },
   { key: 'bracket', label: 'Bracket',            icon: '⚔️' },
 ]
 
