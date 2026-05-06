@@ -1,6 +1,18 @@
 import { useState } from 'react'
 import { resolveMediaUrl } from '../utils/resolveMediaUrl'
 
+function TextQuote({ texto, compact }) {
+  return (
+    <blockquote className={`
+      font-serif italic leading-relaxed text-museum-text whitespace-pre-wrap
+      border-l-2 border-museum-accent/50 pl-3
+      ${compact ? 'text-sm line-clamp-3' : 'text-base md:text-lg'}
+    `}>
+      &ldquo;{texto}&rdquo;
+    </blockquote>
+  )
+}
+
 export default function MediaRenderer({ item, compact = false }) {
   const { tipo, conteudo_texto: texto, url_midia: rawUrl } = item
   const hasText  = texto?.trim().length > 0
@@ -9,15 +21,9 @@ export default function MediaRenderer({ item, compact = false }) {
   if (tipo === 'texto') {
     return (
       <div className={hasText && hasMedia && !compact ? 'space-y-3' : undefined}>
-        <blockquote className={`
-          font-serif italic leading-relaxed text-museum-text whitespace-pre-wrap
-          border-l-2 border-museum-accent/50 pl-3
-          ${compact ? 'text-sm line-clamp-3' : 'text-base md:text-lg'}
-        `}>
-          {hasText
-            ? `"${texto}"`
-            : <span className="text-museum-muted/40">sem conteúdo</span>}
-        </blockquote>
+        {hasText
+          ? <TextQuote texto={texto} compact={compact} />
+          : <span className="text-museum-muted/40 text-sm">sem conteúdo</span>}
         {hasMedia && !compact && <ImageRenderer rawUrl={rawUrl} compact={false} />}
       </div>
     )
@@ -25,14 +31,9 @@ export default function MediaRenderer({ item, compact = false }) {
 
   if (tipo === 'imagem') {
     return (
-      <div className={hasText && !compact ? 'space-y-2' : undefined}>
+      <div className={hasText ? 'space-y-2' : undefined}>
         <ImageRenderer rawUrl={rawUrl} compact={compact} />
-        {hasText && (
-          <p className={`font-serif italic whitespace-pre-wrap text-museum-text
-            ${compact ? 'text-xs line-clamp-2 text-museum-muted' : 'text-sm leading-relaxed'}`}>
-            {texto}
-          </p>
-        )}
+        {hasText && <TextQuote texto={texto} compact={compact} />}
       </div>
     )
   }
@@ -47,7 +48,7 @@ export default function MediaRenderer({ item, compact = false }) {
           <div className="flex items-center gap-2 text-purple-400 text-xs bg-purple-400/10 border border-purple-400/20 rounded-lg px-3 py-2">
             <span>🎵</span><span>Áudio — clique para ouvir</span>
           </div>
-          {hasText && <p className="text-xs text-museum-muted font-serif italic line-clamp-2">{texto}</p>}
+          {hasText && <TextQuote texto={texto} compact />}
         </div>
       )
     }
@@ -67,7 +68,7 @@ export default function MediaRenderer({ item, compact = false }) {
     return (
       <div className={hasText ? 'space-y-2' : undefined}>
         {player}
-        {hasText && <p className="text-sm font-serif italic whitespace-pre-wrap text-museum-text leading-relaxed">{texto}</p>}
+        {hasText && <TextQuote texto={texto} compact={compact} />}
       </div>
     )
   }
@@ -82,7 +83,7 @@ export default function MediaRenderer({ item, compact = false }) {
           <div className="flex items-center gap-2 text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">
             <span>🎬</span><span>Vídeo — clique para assistir</span>
           </div>
-          {hasText && <p className="text-xs text-museum-muted font-serif italic line-clamp-2">{texto}</p>}
+          {hasText && <TextQuote texto={texto} compact />}
         </div>
       )
     }
@@ -108,7 +109,7 @@ export default function MediaRenderer({ item, compact = false }) {
     return (
       <div className={hasText ? 'space-y-2' : undefined}>
         {player}
-        {hasText && <p className="text-sm font-serif italic whitespace-pre-wrap text-museum-text leading-relaxed">{texto}</p>}
+        {hasText && <TextQuote texto={texto} compact={compact} />}
       </div>
     )
   }
