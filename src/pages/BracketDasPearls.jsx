@@ -1,30 +1,28 @@
 import { useState, useEffect } from 'react'
 import { fetchItems } from '../utils/dataLoader'
 import { groupPearls } from '../utils/groupPearls'
+import MediaRenderer from '../components/MediaRenderer'
 import {
   initBracket, pickAndAdvance,
   totalMatchups, countCompletedMatchups,
 } from '../utils/buildBracket'
 
-const STORAGE_STATE = 'museutch_bracket_v2'
+const STORAGE_STATE = 'museutch_bracket_v3'
 const STORAGE_USER  = 'museutch_usuario'
 const SEND_ENDPOINT = '' // URL do Google Apps Script — configurar depois
 
-/**
- * Monta as entradas do bracket: uma entrada por grupo que contenha
- * ao menos um item de texto com conteúdo.
- */
+/** Uma entrada por grupo, com todos os itens do grupo. */
 function buildEntries(items) {
   const groups = groupPearls(items)
   return groups
     .map(g => ({
-      grupo_id:  g.grupo_id,
-      data:      g.data,
-      grupo:     g.grupo,
-      pessoas:   g.pessoas,
-      textItems: g.items.filter(i => i.tipo === 'texto' && i.conteudo_texto.length > 0),
+      grupo_id: g.grupo_id,
+      data:     g.data,
+      grupo:    g.grupo,
+      pessoas:  g.pessoas,
+      items:    g.items,
     }))
-    .filter(e => e.textItems.length > 0)
+    .filter(e => e.items.length > 0)
 }
 
 // ─── IdentifyScreen ───────────────────────────────────────────────────────────
@@ -46,7 +44,7 @@ function IdentifyScreen({ onStart, error }) {
         <p className="text-4xl">⚔️</p>
         <h2 className="font-serif font-bold text-museum-text text-2xl">Bracket das Pérolas</h2>
         <p className="text-museum-muted text-sm max-w-xs leading-relaxed">
-          Todas as pérolas de texto, frente a frente. Escolha a que preferir em cada confronto.
+          Todas as entradas do acervo, frente a frente. Escolha a que preferir em cada confronto.
         </p>
       </div>
 
@@ -83,47 +81,39 @@ function IdentifyScreen({ onStart, error }) {
 // ─── MatchupCard ──────────────────────────────────────────────────────────────
 
 function MatchupCard({ entry, onPick }) {
-  const { textItems, pessoas, data } = entry
-  const isSequence = textItems.length > 1
+  const { items, pessoas, data } = entry
+  const isSequence = items.length > 1
 
   return (
     <button
       onClick={onPick}
       className="flex-1 min-w-0 min-h-0 rounded-2xl border border-museum-border bg-museum-card p-5 text-left
-        flex flex-col gap-3 overflow-hidden
-        hover:border-museum-accent/50 hover:bg-museum-accent/5 hover:scale-[1.015]
+        flex flex-col gap-3 overflow-y-auto
+        hover:border-museum-accent/50 hover:bg-museum-accent/5
         active:scale-[0.99] transition-all duration-200 group"
     >
       {/* Cabeçalho */}
       <div className="flex items-center gap-2 shrink-0">
         <span className="text-[10px] text-museum-muted/50 font-mono uppercase tracking-wider flex-1 truncate">
-          {entry.pessoas.join(', ')}
+          {pessoas.join(', ')}
         </span>
         <span className="text-[10px] text-museum-muted/35 font-mono shrink-0">
           {data}
         </span>
       </div>
 
-      {/* Textos */}
-      <div className="flex-1 overflow-hidden flex flex-col gap-2">
-        {isSequence ? (
-          textItems.map((ti, i) => (
-            <div key={i} className="flex flex-col gap-0.5">
+      {/* Todos os itens do grupo */}
+      <div className="flex-1 flex flex-col gap-2.5">
+        {items.map((item, i) => (
+          <div key={i} className="flex flex-col gap-0.5">
+            {isSequence && (
               <span className="text-[9px] text-museum-accent/50 font-mono uppercase tracking-wide">
-                {(ti.pessoas_item ?? [ti.pessoa]).join(', ')}
+                {(item.pessoas_item?.length ? item.pessoas_item : [item.pessoa]).join(', ')}
               </span>
-              <p className="text-museum-text text-sm leading-relaxed font-serif overflow-hidden"
-                style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', whiteSpace: 'pre-wrap' }}>
-                &ldquo;{ti.conteudo_texto}&rdquo;
-              </p>
-            </div>
-          ))
-        ) : (
-          <p className="flex-1 text-museum-text text-sm leading-relaxed font-serif overflow-hidden"
-            style={{ display: '-webkit-box', WebkitLineClamp: 8, WebkitBoxOrient: 'vertical', whiteSpace: 'pre-wrap' }}>
-            &ldquo;{textItems[0].conteudo_texto}&rdquo;
-          </p>
-        )}
+            )}
+            <MediaRenderer item={item} compact />
+          </div>
+        ))}
       </div>
 
       <div className="shrink-0 text-center pt-1">
@@ -187,7 +177,7 @@ function PlayingScreen({ state, onPick }) {
 
 function ChampionScreen({ champion, usuario, onReset }) {
   const [sendStatus, setSendStatus] = useState('idle') // idle | sending | sent | error
-  const isSequence = champion.textItems.length > 1
+  const isSequence = champion.items.length > 1
 
   async function handleSend() {
     if (!SEND_ENDPOINT) {
@@ -199,7 +189,10 @@ function ChampionScreen({ champion, usuario, onReset }) {
       const body = {
         usuario,
         grupo_id:  champion.grupo_id,
-        campea:    champion.textItems.map(i => i.conteudo_texto).join(' / '),
+        campea:    champion.items
+          .filter(i => i.tipo === 'texto' && i.conteudo_texto)
+          .map(i => i.conteudo_texto)
+          .join(' / '),
         pessoas:   champion.pessoas.join(', '),
         data:      champion.data,
         timestamp: new Date().toISOString(),
@@ -235,22 +228,18 @@ function ChampionScreen({ champion, usuario, onReset }) {
           <span>{champion.data}</span>
         </div>
 
-        {isSequence ? (
-          <div className="space-y-3 text-left">
-            {champion.textItems.map((ti, i) => (
-              <div key={i} className="space-y-0.5">
-                <p className="text-[9px] text-museum-accent/60 font-mono uppercase tracking-wide">{ti.pessoa}</p>
-                <p className="text-museum-text text-sm leading-relaxed font-serif italic">
-                  &ldquo;{ti.conteudo_texto}&rdquo;
+        <div className="space-y-3 text-left">
+          {champion.items.map((item, i) => (
+            <div key={i} className="space-y-0.5">
+              {isSequence && (
+                <p className="text-[9px] text-museum-accent/60 font-mono uppercase tracking-wide">
+                  {(item.pessoas_item?.length ? item.pessoas_item : [item.pessoa]).join(', ')}
                 </p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-museum-text text-base leading-relaxed font-serif italic whitespace-pre-wrap">
-            &ldquo;{champion.textItems[0].conteudo_texto}&rdquo;
-          </p>
-        )}
+              )}
+              <MediaRenderer item={item} compact={false} />
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="flex flex-col items-center gap-2 w-full max-w-sm">
@@ -332,7 +321,7 @@ export default function BracketDasPearls() {
     try {
       const items = await fetchItems()
       const entries = buildEntries(items)
-      if (entries.length < 2) throw new Error('Pérolas insuficientes para iniciar o torneio.')
+      if (entries.length < 2) throw new Error('Entradas insuficientes para iniciar o torneio.')
       const initial = initBracket(entries)
       localStorage.removeItem(STORAGE_STATE)
       setState(initial)
