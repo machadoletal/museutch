@@ -79,7 +79,7 @@ export function usePearls() {
     }
 
     return result
-  }, [allGroups, filterPessoa, filterAno, filterTipo, search])
+  }, [allGroups, filterPessoa, filterAno, filterTipo, filterGrupo, search])
 
   function resetFilters() {
     setSearch('')
