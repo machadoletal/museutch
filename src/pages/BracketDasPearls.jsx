@@ -85,13 +85,9 @@ function MatchupCard({ entry, onPick }) {
   const isSequence = items.length > 1
 
   return (
-    <button
-      onClick={onPick}
-      className="flex-1 min-w-0 min-h-0 rounded-2xl border border-museum-border bg-museum-card p-5 text-left
-        flex flex-col gap-3 overflow-y-auto
-        hover:border-museum-accent/50 hover:bg-museum-accent/5
-        active:scale-[0.99] transition-all duration-200 group"
-    >
+    <div className="flex-1 min-w-0 rounded-2xl border border-museum-border bg-museum-card p-5
+      flex flex-col gap-3 overflow-y-auto">
+
       {/* Cabeçalho */}
       <div className="flex items-center gap-2 shrink-0">
         <span className="text-[10px] text-museum-muted/50 font-mono uppercase tracking-wider flex-1 truncate">
@@ -102,7 +98,7 @@ function MatchupCard({ entry, onPick }) {
         </span>
       </div>
 
-      {/* Todos os itens do grupo */}
+      {/* Todos os itens — áudio e vídeo ficam com player completo */}
       <div className="flex-1 flex flex-col gap-2.5">
         {items.map((item, i) => (
           <div key={i} className="flex flex-col gap-0.5">
@@ -111,17 +107,24 @@ function MatchupCard({ entry, onPick }) {
                 {(item.pessoas_item?.length ? item.pessoas_item : [item.pessoa]).join(', ')}
               </span>
             )}
-            <MediaRenderer item={item} compact />
+            <MediaRenderer
+              item={item}
+              compact={item.tipo !== 'audio' && item.tipo !== 'video'}
+            />
           </div>
         ))}
       </div>
 
-      <div className="shrink-0 text-center pt-1">
-        <span className="text-xs text-museum-accent/50 group-hover:text-museum-accent transition-colors font-medium">
-          Escolher esta ✦
-        </span>
-      </div>
-    </button>
+      {/* Botão de voto separado do conteúdo */}
+      <button
+        onClick={onPick}
+        className="shrink-0 w-full py-2 rounded-xl border border-museum-accent/30 text-museum-accent/70
+          text-xs font-medium hover:bg-museum-accent hover:text-white hover:border-museum-accent
+          active:scale-[0.98] transition-all duration-150"
+      >
+        Escolher esta ✦
+      </button>
+    </div>
   )
 }
 
