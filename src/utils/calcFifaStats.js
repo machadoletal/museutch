@@ -53,7 +53,7 @@ export function calcAllFifaStats(groups, persons) {
   const raw = {}
 
   for (const { pessoa, total } of persons) {
-    const items = allItems.filter(i => i.pessoa?.trim() === pessoa)
+    const items = allItems.filter(i => i.pessoas_item?.includes(pessoa))
 
     // CONS — anos ativos e regularidade
     const byYear = {}
@@ -88,8 +88,8 @@ export function calcAllFifaStats(groups, persons) {
 
     // PROT — presença em sequências
     const itensEmSeq = groups
-      .filter(g => g.isSequence && g.items.some(i => i.pessoa?.trim() === pessoa))
-      .flatMap(g => g.items.filter(i => i.pessoa?.trim() === pessoa))
+      .filter(g => g.isSequence && g.items.some(i => i.pessoas_item?.includes(pessoa)))
+      .flatMap(g => g.items.filter(i => i.pessoas_item?.includes(pessoa)))
 
     raw[pessoa] = {
       total, items, textItems,

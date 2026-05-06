@@ -75,7 +75,7 @@ export default function JogoDosConjuges() {
 
   const item = current?.isSequence ? current?.destaqueItem : current?.items[0]
   const texto = item?.conteudo_texto || ''
-  const pessoa = item?.pessoa || current?.pessoa || ''
+  const pessoas_item = item?.pessoas_item ?? (item?.pessoa ? [item.pessoa] : [])
 
   return (
     <div className="min-h-screen bg-museum-bg text-museum-text flex flex-col">
@@ -138,11 +138,13 @@ export default function JogoDosConjuges() {
                 {/* Área do autor — renderização condicional, nome nunca fica no DOM oculto */}
                 <div className="mt-8 flex justify-center items-center min-h-[56px]">
                   {revealed ? (
-                    <div className="flex items-center gap-3 animate-fade-in">
-                      <Avatar name={pessoa} size="lg" />
-                      <span className="font-serif text-2xl font-semibold text-museum-accent">
-                        {pessoa}
-                      </span>
+                    <div className="flex items-center gap-3 flex-wrap justify-center animate-fade-in">
+                      {pessoas_item.map(p => (
+                        <div key={p} className="flex items-center gap-2">
+                          <Avatar name={p} size="lg" />
+                          <span className="font-serif text-2xl font-semibold text-museum-accent">{p}</span>
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     <div className="flex items-center gap-3">

@@ -22,9 +22,9 @@ export function calcRanking(groups, ano = 'Todos') {
 
   const counts = {}
   for (const item of filtered) {
-    const pessoa = item.pessoa?.trim()
-    if (!pessoa) continue
-    counts[pessoa] = (counts[pessoa] || 0) + 1
+    for (const pessoa of item.pessoas_item ?? []) {
+      counts[pessoa] = (counts[pessoa] || 0) + 1
+    }
   }
 
   const sorted = Object.entries(counts)

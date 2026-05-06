@@ -34,9 +34,9 @@ export function getAllPersons(groups) {
   const allItems = groups.flatMap(g => g.items)
   const counts = {}
   for (const item of allItems) {
-    const p = item.pessoa?.trim()
-    if (!p) continue
-    counts[p] = (counts[p] || 0) + 1
+    for (const p of item.pessoas_item ?? []) {
+      counts[p] = (counts[p] || 0) + 1
+    }
   }
   return Object.entries(counts)
     .map(([pessoa, total], _, arr) => ({
@@ -53,8 +53,8 @@ export function getAllPersons(groups) {
  */
 export function calcPerfil(groups, pessoa) {
   const allItems  = groups.flatMap(g => g.items)
-  const items     = allItems.filter(i => i.pessoa?.trim() === pessoa)
-  const totalAll  = allItems.filter(i => i.pessoa?.trim()).length
+  const items     = allItems.filter(i => i.pessoas_item?.includes(pessoa))
+  const totalAll  = allItems.filter(i => i.pessoas_item?.length > 0).length
 
   if (items.length === 0) return null
 

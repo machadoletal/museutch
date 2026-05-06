@@ -19,6 +19,7 @@ function normalizeRow(raw) {
     data:          String(raw.data       ?? '').trim(),
     grupo:         String(raw.grupo      ?? '').trim(),
     pessoa:        String(raw.pessoa     ?? '').trim(),
+    pessoas_item:  String(raw.pessoa     ?? '').trim().split(',').map(s => s.trim()).filter(Boolean),
     tipo:          String(raw.tipo       ?? 'texto').trim().toLowerCase(),
     conteudo_texto: String(raw.conteudo_texto ?? '').trim(),
     url_midia:     String(raw.url_midia  ?? '').trim(),

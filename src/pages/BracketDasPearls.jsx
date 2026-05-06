@@ -97,7 +97,7 @@ function MatchupCard({ entry, onPick }) {
       {/* Cabeçalho */}
       <div className="flex items-center gap-2 shrink-0">
         <span className="text-[10px] text-museum-muted/50 font-mono uppercase tracking-wider flex-1 truncate">
-          {pessoas.join(', ')}
+          {entry.pessoas.join(', ')}
         </span>
         <span className="text-[10px] text-museum-muted/35 font-mono shrink-0">
           {data}
@@ -110,7 +110,7 @@ function MatchupCard({ entry, onPick }) {
           textItems.map((ti, i) => (
             <div key={i} className="flex flex-col gap-0.5">
               <span className="text-[9px] text-museum-accent/50 font-mono uppercase tracking-wide">
-                {ti.pessoa}
+                {(ti.pessoas_item ?? [ti.pessoa]).join(', ')}
               </span>
               <p className="text-museum-text text-sm leading-relaxed font-serif overflow-hidden"
                 style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', whiteSpace: 'pre-wrap' }}>

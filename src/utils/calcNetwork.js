@@ -26,7 +26,7 @@ export function calcNetwork(groups) {
 
     // Pessoas únicas presentes neste grupo
     const persons = [
-      ...new Set(group.items.map(i => i.pessoa?.trim()).filter(Boolean)),
+      ...new Set(group.items.flatMap(i => i.pessoas_item ?? [])),
     ]
 
     if (persons.length < 2) continue

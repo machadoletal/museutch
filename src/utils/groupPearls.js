@@ -58,8 +58,8 @@ export function groupPearls(items) {
     // Usa os dados do primeiro item como referência do grupo
     const first = sorted[0]
 
-    // Coleta pessoas únicas do grupo (mantendo ordem de aparição)
-    const pessoasSet = new Set(sorted.map(i => i.pessoa).filter(Boolean))
+    // Coleta pessoas únicas do grupo (mantendo ordem de aparição, suporta múltiplos por item)
+    const pessoasSet = new Set(sorted.flatMap(i => i.pessoas_item))
 
     // Tipo predominante (para filtro por tipo)
     // Se houver vários tipos, retornamos o do primeiro item

@@ -150,11 +150,15 @@ function Timeline({ items }) {
 
               {/* Conteúdo do item */}
               <div className="flex-1 pb-2">
-                {/* Pessoa do item (se diferente dos demais ou for sequência de diálogo) */}
-                {item.pessoa && (
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <Avatar name={item.pessoa} />
-                    <span className="text-xs font-medium text-museum-accent">{item.pessoa}</span>
+                {/* Pessoa(s) do item */}
+                {item.pessoas_item?.length > 0 && (
+                  <div className="flex items-center gap-2 flex-wrap mb-2">
+                    {item.pessoas_item.map(p => (
+                      <div key={p} className="flex items-center gap-1.5">
+                        <Avatar name={p} />
+                        <span className="text-xs font-medium text-museum-accent">{p}</span>
+                      </div>
+                    ))}
                   </div>
                 )}
                 <MediaRenderer item={item} compact={false} />
