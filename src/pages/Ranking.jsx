@@ -27,9 +27,13 @@ export default function Ranking() {
   const { groups, loading, error } = usePearls()
   const [selectedYear, setSelectedYear] = useState('Todos')
 
-  const years      = useMemo(() => getAvailableYears(groups), [groups])
+  const years         = useMemo(() => getAvailableYears(groups), [groups])
+  const filteredCount = useMemo(() =>
+    selectedYear === 'Todos' ? groups.length : groups.filter(g => g.ano === Number(selectedYear)).length,
+    [groups, selectedYear]
+  )
   const ranking    = useMemo(() => calcRanking(groups, selectedYear), [groups, selectedYear])
-  const summary    = useMemo(() => calcSummary(ranking, selectedYear), [ranking, selectedYear])
+  const summary    = useMemo(() => calcSummary(ranking, selectedYear, filteredCount), [ranking, selectedYear, filteredCount])
 
   return (
     <div className="min-h-screen bg-museum-bg text-museum-text flex flex-col">

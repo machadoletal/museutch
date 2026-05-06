@@ -51,10 +51,9 @@ export function getAvailableYears(groups) {
 /**
  * Resumo rápido do recorte atual.
  */
-export function calcSummary(ranking, ano) {
-  const total = ranking.reduce((acc, r) => acc + r.count, 0)
+export function calcSummary(ranking, ano, totalGroups) {
   return {
-    totalPerolas: total,
+    totalPerolas: totalGroups,
     totalPessoas: ranking.length,
     lider:        ranking[0]?.pessoa || '—',
     liderCount:   ranking[0]?.count  || 0,
