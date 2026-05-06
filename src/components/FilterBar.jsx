@@ -13,6 +13,7 @@ export default function FilterBar({
   filterPessoa, setFilterPessoa, pessoas,
   filterAno, setFilterAno, anos,
   filterTipo, setFilterTipo, tipos,
+  filterGrupo, setFilterGrupo, grupos,
   resetFilters, hasActiveFilters,
   resultCount,
 }) {
@@ -48,9 +49,10 @@ export default function FilterBar({
 
         {/* Filtros + contador */}
         <div className="flex flex-wrap items-center gap-2">
-          <FilterSelect value={filterPessoa} onChange={setFilterPessoa} options={pessoas} placeholder="Pessoa" />
-          <FilterSelect value={filterAno}    onChange={setFilterAno}    options={anos.map(String)} placeholder="Ano" />
-          <FilterSelect value={filterTipo}   onChange={setFilterTipo}   options={tipos} placeholder="Tipo" labelMap={TIPO_LABELS} />
+          <FilterSelect value={filterPessoa} onChange={setFilterPessoa} options={pessoas}           placeholder="Pessoa" />
+          <FilterSelect value={filterAno}    onChange={setFilterAno}    options={anos.map(String)}  placeholder="Ano" />
+          <FilterSelect value={filterTipo}   onChange={setFilterTipo}   options={tipos}             placeholder="Tipo" labelMap={TIPO_LABELS} />
+          <FilterSelect value={filterGrupo}  onChange={setFilterGrupo}  options={grupos}            placeholder="Grupo" />
 
           <div className="ml-auto flex items-center gap-2 text-xs text-museum-muted">
             <span>{resultCount} resultado{resultCount !== 1 ? 's' : ''}</span>

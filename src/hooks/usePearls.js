@@ -16,6 +16,7 @@ export function usePearls() {
   const [filterPessoa,  setFilterPessoa]  = useState('Todos')
   const [filterAno,     setFilterAno]     = useState('Todos')
   const [filterTipo,    setFilterTipo]    = useState('Todos')
+  const [filterGrupo,   setFilterGrupo]   = useState('Todos')
 
   // Carrega e agrupa na montagem
   useEffect(() => {
@@ -37,6 +38,11 @@ export function usePearls() {
     return ['Todos', ...Array.from(set).sort((a, b) => b - a)]
   }, [allGroups])
 
+  const grupos = useMemo(() => {
+    const set = new Set(allGroups.map(g => g.grupo).filter(Boolean))
+    return ['Todos', ...Array.from(set).sort((a, b) => a.localeCompare(b, 'pt'))]
+  }, [allGroups])
+
   const tipos = ['Todos', 'texto', 'imagem', 'audio', 'video']
 
   // Aplica filtros e busca
@@ -52,8 +58,11 @@ export function usePearls() {
     }
 
     if (filterTipo !== 'Todos') {
-      // Sequências que contenham pelo menos um item do tipo filtrado
       result = result.filter(g => g.tipos.includes(filterTipo))
+    }
+
+    if (filterGrupo !== 'Todos') {
+      result = result.filter(g => g.grupo === filterGrupo)
     }
 
     if (search.trim()) {
@@ -77,19 +86,22 @@ export function usePearls() {
     setFilterPessoa('Todos')
     setFilterAno('Todos')
     setFilterTipo('Todos')
+    setFilterGrupo('Todos')
   }
 
   const hasActiveFilters =
     search !== '' || filterPessoa !== 'Todos' ||
-    filterAno !== 'Todos' || filterTipo !== 'Todos'
+    filterAno !== 'Todos' || filterTipo !== 'Todos' ||
+    filterGrupo !== 'Todos'
 
   return {
     groups, loading, error,
-    pessoas, anos, tipos,
+    pessoas, anos, grupos, tipos,
     search,       setSearch,
     filterPessoa, setFilterPessoa,
     filterAno,    setFilterAno,
     filterTipo,   setFilterTipo,
+    filterGrupo,  setFilterGrupo,
     resetFilters, hasActiveFilters,
     totalCount: allGroups.length,
   }

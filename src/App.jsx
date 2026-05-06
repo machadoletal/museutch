@@ -18,11 +18,12 @@ export default function App() {
 
   const {
     groups, loading, error,
-    pessoas, anos, tipos,
+    pessoas, anos, grupos, tipos,
     search,       setSearch,
     filterPessoa, setFilterPessoa,
     filterAno,    setFilterAno,
     filterTipo,   setFilterTipo,
+    filterGrupo,  setFilterGrupo,
     resetFilters, hasActiveFilters,
     totalCount,
   } = usePearls()
@@ -40,6 +41,7 @@ export default function App() {
             filterPessoa={filterPessoa} setFilterPessoa={setFilterPessoa} pessoas={pessoas}
             filterAno={filterAno}       setFilterAno={setFilterAno}       anos={anos}
             filterTipo={filterTipo}     setFilterTipo={setFilterTipo}     tipos={tipos}
+            filterGrupo={filterGrupo}   setFilterGrupo={setFilterGrupo}   grupos={grupos}
             resetFilters={resetFilters} hasActiveFilters={hasActiveFilters}
             resultCount={groups.length}
           />
