@@ -109,7 +109,7 @@ function MatchupCard({ entry, onPick }) {
             )}
             <MediaRenderer
               item={item}
-              compact={item.tipo !== 'audio' && item.tipo !== 'video'}
+              compact={item.tipo === 'imagem'}
             />
           </div>
         ))}
