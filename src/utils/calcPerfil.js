@@ -63,11 +63,11 @@ export function calcPerfil(groups, pessoa) {
   const participacao = totalAll > 0 ? Math.round((total / totalAll) * 100) : 0
 
   // --- datas ---
-  const datesValid = items.map(i => ({ raw: i.data, parsed: parseDate(i.data) }))
-    .filter(d => d.parsed.getTime() > 0)
-    .sort((a, b) => a.parsed - b.parsed)
-  const primeiro = datesValid[0]?.raw || null
-  const primeiroItem = items.find(i => i.data === datesValid[0]?.raw) || items[0]
+  const sortedByDate = [...items]
+    .filter(i => parseDate(i.data).getTime() > 0)
+    .sort((a, b) => parseDate(a.data) - parseDate(b.data))
+  const primeiroItem = sortedByDate[0] || items[0]
+  const primeiro = primeiroItem?.data || null
 
   // --- anos ---
   const byYear = {}
