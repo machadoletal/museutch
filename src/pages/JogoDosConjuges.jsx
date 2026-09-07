@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { usePearls } from '../hooks/usePearls'
 
 /** Formata data para exibição */
@@ -32,20 +32,15 @@ function Avatar({ name, size = 'md' }) {
 export default function JogoDosConjuges() {
   const { groups, loading, error } = usePearls()
 
-  // Filtra só pérolas de texto simples (não sequências)
-  const [pool, setPool] = useState([])
+  // Pérolas jogáveis: texto simples ou sequência com item de destaque em texto
+  const pool = useMemo(() => groups.filter(g => {
+    if (!g.isSequence) return g.tipo === 'texto' && g.items[0]?.conteudo_texto?.trim()
+    return g.destaqueItem?.conteudo_texto?.trim()
+  }), [groups])
+
   const [current, setCurrent] = useState(null)
   const [revealed, setRevealed] = useState(false)
   const [score, setScore] = useState({ acertos: 0, tentativas: 0 })
-
-  useEffect(() => {
-    if (groups.length === 0) return
-    const filtered = groups.filter(g => {
-      if (!g.isSequence) return g.tipo === 'texto' && g.items[0]?.conteudo_texto?.trim()
-      return g.destaqueItem?.conteudo_texto?.trim()
-    })
-    setPool(filtered)
-  }, [groups])
 
   // Sorteia uma pérola aleatória diferente da atual
   const sortear = useCallback((poolAtual = pool) => {
@@ -59,10 +54,13 @@ export default function JogoDosConjuges() {
     setRevealed(false)
   }, [pool, current])
 
-  // Sorteia automaticamente quando o pool estiver pronto
+  // Primeiro sorteio assim que os dados (assíncronos) chegam. É uma
+  // sincronização legítima com fonte externa, não uma cascata de renders.
   useEffect(() => {
-    if (pool.length > 0 && !current) sortear(pool)
-  }, [pool])
+    if (pool.length === 0 || current) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCurrent(pool[Math.floor(Math.random() * pool.length)])
+  }, [pool, current])
 
   function revelar() {
     setRevealed(true)

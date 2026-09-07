@@ -80,7 +80,7 @@ export function initBracket(items) {
  * @returns {{ newState: object, champion: object|null }}
  */
 function applyPick(state, winner) {
-  const { roundItems, matchupIndex, roundNumber, roundWinners } = state
+  const { roundItems, matchupIndex, roundWinners } = state
   const matchupsInRound = Math.floor(roundItems.length / 2)
   const newWinners = [...roundWinners, winner]
 
