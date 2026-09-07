@@ -4,7 +4,7 @@
 
 **A friend group's memory archive.** Museu TCH collects, catalogues and celebrates the
 most iconic lines, voice notes and images the group has produced since 2020 — the
-*pérolas* ("pearls"). It's a personal project, made for the people who lived these
+*pérolas* (entries). It's a personal project, made for the people who lived these
 stories.
 
 > 🔒 The archive is private and password-protected. This repository holds only the
@@ -14,11 +14,11 @@ stories.
 
 | Section | What it is |
 |---|---|
-| **Acervo** (Collection) | The full set of pearls, with search and filters (person, year, type, group) and date sorting. Every pearl has a direct link (`/#grupo_id`). |
+| **Acervo** (Collection) | The full set of entries, with search and filters (person, year, type, group) and date sorting. Every entry has a direct link (`/#grupo_id`). |
 | **Jogo dos Cônjuges** (Spouses' Game) | A guessing game: a line appears, you try to remember who said it. |
-| **Ranking** | People ranked by how many pearls they have in the archive. |
-| **Hall da Fama** (Hall of Fame) | A detailed profile per person — share of the archive, active years, most frequent pearl type, timeline. |
-| **Bracket** | A single-elimination bracket to crown the best pearl by vote. |
+| **Ranking** | People ranked by how many entries they have in the archive. |
+| **Hall da Fama** (Hall of Fame) | A detailed profile per person — share of the archive, active years, most frequent entry type, timeline. |
+| **Bracket** | A single-elimination bracket to crown the best entry by vote. |
 
 ## Stack
 
