@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Segredos e dados gerados no build (nunca versionar)
+.env
+public/museu-data.enc.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
