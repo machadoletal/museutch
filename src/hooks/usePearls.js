@@ -17,6 +17,7 @@ export function usePearls() {
   const [filterAno,     setFilterAno]     = useState('Todos')
   const [filterTipo,    setFilterTipo]    = useState('Todos')
   const [filterGrupo,   setFilterGrupo]   = useState('Todos')
+  const [sortOrder,     setSortOrder]     = useState('desc') // 'desc' = mais recente primeiro
 
   // Carrega e agrupa na montagem
   useEffect(() => {
@@ -78,8 +79,13 @@ export function usePearls() {
       )
     }
 
+    // Ordena por data conforme sortOrder (allGroups já vem desc de groupPearls)
+    result = [...result].sort((a, b) =>
+      sortOrder === 'asc' ? a._date - b._date : b._date - a._date
+    )
+
     return result
-  }, [allGroups, filterPessoa, filterAno, filterTipo, filterGrupo, search])
+  }, [allGroups, filterPessoa, filterAno, filterTipo, filterGrupo, search, sortOrder])
 
   function resetFilters() {
     setSearch('')
@@ -87,6 +93,7 @@ export function usePearls() {
     setFilterAno('Todos')
     setFilterTipo('Todos')
     setFilterGrupo('Todos')
+    setSortOrder('desc')
   }
 
   const hasActiveFilters =
@@ -102,6 +109,7 @@ export function usePearls() {
     filterAno,    setFilterAno,
     filterTipo,   setFilterTipo,
     filterGrupo,  setFilterGrupo,
+    sortOrder,    setSortOrder,
     resetFilters, hasActiveFilters,
     totalCount: allGroups.length,
   }

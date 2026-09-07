@@ -16,7 +16,11 @@ export function parseAno(dataStr) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(dataStr)) return parseInt(dataStr.slice(0, 4), 10)
   // dd/mm/yyyy
   const parts = dataStr.split('/')
-  if (parts.length === 3) return parseInt(parts[2], 10)
+  if (parts.length === 3) {
+    const y = parseInt(parts[2], 10)
+    if (Number.isNaN(y)) return null
+    return y < 100 ? 2000 + y : y
+  }
   return null
 }
 
@@ -30,7 +34,9 @@ function parseDate(dataStr) {
   const parts = dataStr.split('/')
   if (parts.length === 3) {
     const [d, m, y] = parts
-    return new Date(`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`)
+    // Suporta ano com 2 dígitos ("20" → "2020")
+    const year = y.length === 2 ? `20${y}` : y.padStart(4, '0')
+    return new Date(`${year}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`)
   }
   return new Date(0)
 }

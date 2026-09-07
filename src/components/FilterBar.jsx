@@ -14,6 +14,7 @@ export default function FilterBar({
   filterAno, setFilterAno, anos,
   filterTipo, setFilterTipo, tipos,
   filterGrupo, setFilterGrupo, grupos,
+  sortOrder, setSortOrder,
   resetFilters, hasActiveFilters,
   resultCount,
 }) {
@@ -53,6 +54,17 @@ export default function FilterBar({
           <FilterSelect value={filterAno}    onChange={setFilterAno}    options={anos.map(String)}  placeholder="Ano" />
           <FilterSelect value={filterTipo}   onChange={setFilterTipo}   options={tipos}             placeholder="Tipo" labelMap={TIPO_LABELS} />
           <FilterSelect value={filterGrupo}  onChange={setFilterGrupo}  options={grupos}            placeholder="Grupo" />
+
+          <button
+            onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
+            title={sortOrder === 'desc' ? 'Mais recentes primeiro' : 'Mais antigas primeiro'}
+            className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg border border-museum-border bg-museum-surface text-museum-muted hover:text-museum-text cursor-pointer focus:outline-none focus:ring-1 focus:ring-museum-accent/20 transition"
+          >
+            {sortOrder === 'desc'
+              ? <><SortDesc className="w-3.5 h-3.5" /> Mais recentes</>
+              : <><SortAsc className="w-3.5 h-3.5" /> Mais antigas</>
+            }
+          </button>
 
           <div className="ml-auto flex items-center gap-2 text-xs text-museum-muted">
             <span>{resultCount} resultado{resultCount !== 1 ? 's' : ''}</span>

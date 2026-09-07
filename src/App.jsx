@@ -23,6 +23,7 @@ export default function App() {
     filterAno,    setFilterAno,
     filterTipo,   setFilterTipo,
     filterGrupo,  setFilterGrupo,
+    sortOrder,    setSortOrder,
     resetFilters, hasActiveFilters,
     totalCount,
   } = usePearls()
@@ -41,6 +42,7 @@ export default function App() {
             filterAno={filterAno}       setFilterAno={setFilterAno}       anos={anos}
             filterTipo={filterTipo}     setFilterTipo={setFilterTipo}     tipos={tipos}
             filterGrupo={filterGrupo}   setFilterGrupo={setFilterGrupo}   grupos={grupos}
+            sortOrder={sortOrder}       setSortOrder={setSortOrder}
             resetFilters={resetFilters} hasActiveFilters={hasActiveFilters}
             resultCount={groups.length}
           />
