@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { X, Calendar } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { X, Calendar, Link2, Check } from 'lucide-react'
 import MediaRenderer from './MediaRenderer'
 
 /** Formata data para exibição completa */
@@ -48,9 +48,28 @@ export default function SequenceModal({ group, onClose }) {
     }
   }, [onClose])
 
+  const [copied, setCopied] = useState(false)
+
   if (!group) return null
 
   const { items, isSequence, pessoas, data, grupo, grupo_id } = group
+
+  function copyLink() {
+    const { origin, pathname } = window.location
+    const url = `${origin}${pathname}#${grupo_id}`
+    const done = () => { setCopied(true); setTimeout(() => setCopied(false), 2000) }
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(done).catch(done)
+    } else {
+      const ta = document.createElement('textarea')
+      ta.value = url
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand('copy')
+      document.body.removeChild(ta)
+      done()
+    }
+  }
 
   return (
     <div
@@ -65,13 +84,25 @@ export default function SequenceModal({ group, onClose }) {
         {/* Barra decorativa no topo */}
         <div className="h-1 bg-gradient-to-r from-museum-accent/0 via-museum-accent to-museum-accent/0 rounded-t-2xl" />
 
-        {/* Botão fechar */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-museum-surface border border-museum-border text-museum-muted hover:text-museum-text hover:border-museum-accent/40 transition"
-        >
-          <X className="w-4 h-4" />
-        </button>
+        {/* Ações: copiar link + fechar */}
+        <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+          <button
+            onClick={copyLink}
+            title="Copiar link desta pérola"
+            className="flex items-center gap-1.5 px-2.5 py-2 rounded-full bg-museum-surface border border-museum-border text-xs text-museum-muted hover:text-museum-text hover:border-museum-accent/40 transition"
+          >
+            {copied
+              ? <><Check className="w-3.5 h-3.5 text-museum-accent" /> Copiado</>
+              : <><Link2 className="w-3.5 h-3.5" /> Link</>
+            }
+          </button>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full bg-museum-surface border border-museum-border text-museum-muted hover:text-museum-text hover:border-museum-accent/40 transition"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
 
         <div className="p-6 md:p-8">
           {/* Cabeçalho */}

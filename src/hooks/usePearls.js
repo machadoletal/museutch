@@ -112,5 +112,6 @@ export function usePearls() {
     sortOrder,    setSortOrder,
     resetFilters, hasActiveFilters,
     totalCount: allGroups.length,
+    allGroups,
   }
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from './components/Header'
 import TopNav from './components/TopNav'
 import FilterBar from './components/FilterBar'
@@ -25,8 +25,40 @@ export default function App() {
     filterGrupo,  setFilterGrupo,
     sortOrder,    setSortOrder,
     resetFilters, hasActiveFilters,
-    totalCount,
+    totalCount, allGroups,
   } = usePearls()
+
+  // Deep-linking: #grupo_id abre a pérola correspondente
+  function currentHashId() {
+    return window.location.hash.replace(/^#/, '').trim()
+  }
+
+  // Abre a pérola do hash quando os dados carregam ou o hash muda (voltar/avançar)
+  useEffect(() => {
+    if (!allGroups.length) return
+    function syncFromHash() {
+      const id = currentHashId()
+      if (!id) { setSelectedGroup(null); return }
+      const found = allGroups.find(g => g.grupo_id === id)
+      if (found) {
+        setPage('home')
+        setSelectedGroup(found)
+      }
+    }
+    syncFromHash()
+    window.addEventListener('hashchange', syncFromHash)
+    return () => window.removeEventListener('hashchange', syncFromHash)
+  }, [allGroups])
+
+  // Mantém o hash em sincronia com a pérola aberta
+  useEffect(() => {
+    const id = selectedGroup?.grupo_id ?? ''
+    if (id && currentHashId() !== id) {
+      window.history.replaceState(null, '', `#${id}`)
+    } else if (!id && currentHashId()) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
+  }, [selectedGroup])
 
   return (
     <div className="min-h-screen bg-museum-bg text-museum-text scrollbar-museum">
