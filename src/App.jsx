@@ -5,12 +5,25 @@ import FilterBar from './components/FilterBar'
 import PearlCard from './components/PearlCard'
 import SequenceModal from './components/SequenceModal'
 import EmptyState from './components/EmptyState'
+import Pagination from './components/Pagination'
+import ConversationCard from './components/ConversationCard'
+import { LayoutGrid, MessagesSquare } from 'lucide-react'
 import JogoDosConjuges from './pages/JogoDosConjuges'
 import Ranking from './pages/Ranking'
 import HallDaFama from './pages/HallDaFama'
 import BracketDasPearls from './pages/BracketDasPearls'
 import AmigoSecreto from './pages/AmigoSecreto'
 import { usePearls } from './hooks/usePearls'
+
+// Itens por página em cada modo de visualização
+const PAGE_SIZE = { grade: 12, conversa: 6 }
+
+function loadView() {
+  try {
+    const v = localStorage.getItem('museu-view')
+    return v === 'conversa' ? 'conversa' : 'grade'
+  } catch { return 'grade' }
+}
 
 export default function App() {
   const [page, setPage] = useState('home')
@@ -28,6 +41,26 @@ export default function App() {
     resetFilters, hasActiveFilters,
     totalCount, allGroups,
   } = usePearls()
+
+  // Paginação. A página volta para 1 sozinha quando busca/filtros/ordem mudam
+  // (comparando a "assinatura" dos filtros, sem precisar de efeito).
+  const [view, setViewState] = useState(loadView)
+  const pageSize = PAGE_SIZE[view]
+  const filterSig = [search, filterPessoa, filterAno, filterTipo, filterGrupo, sortOrder, view].join('|')
+  const [pageState, setPageState] = useState({ page: 1, sig: filterSig })
+  const totalPages = Math.max(1, Math.ceil(groups.length / pageSize))
+  const pagina = Math.min(pageState.sig === filterSig ? pageState.page : 1, totalPages)
+  const pageGroups = groups.slice((pagina - 1) * pageSize, pagina * pageSize)
+
+  function setView(v) {
+    setViewState(v)
+    try { localStorage.setItem('museu-view', v) } catch { /* sem localStorage: segue sem lembrar */ }
+  }
+
+  function goToPage(p) {
+    setPageState({ page: p, sig: filterSig })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   // Deep-linking: #grupo_id abre a pérola correspondente
   function currentHashId() {
@@ -88,15 +121,27 @@ export default function App() {
             )}
 
             {!loading && !error && groups.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {groups.map(group => (
-                  <PearlCard
-                    key={group.grupo_id}
-                    group={group}
-                    onClick={setSelectedGroup}
-                  />
-                ))}
-              </div>
+              <>
+                <ViewToggle view={view} onChange={setView} />
+                {view === 'grade' ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {pageGroups.map(group => (
+                      <PearlCard
+                        key={group.grupo_id}
+                        group={group}
+                        onClick={setSelectedGroup}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="max-w-2xl mx-auto space-y-5">
+                    {pageGroups.map(group => (
+                      <ConversationCard key={group.grupo_id} group={group} />
+                    ))}
+                  </div>
+                )}
+                <Pagination page={pagina} totalPages={totalPages} onChange={goToPage} />
+              </>
             )}
           </main>
 
@@ -132,6 +177,35 @@ function LoadingGrid() {
           <div className="shimmer h-14 w-full rounded" />
         </div>
       ))}
+    </div>
+  )
+}
+
+function ViewToggle({ view, onChange }) {
+  const opts = [
+    { key: 'grade',    label: 'Grade',    Icon: LayoutGrid },
+    { key: 'conversa', label: 'Conversa', Icon: MessagesSquare },
+  ]
+  return (
+    <div className="mb-5 flex justify-end">
+      <div className="inline-flex rounded-full border border-museum-border p-0.5 bg-museum-surface" role="group" aria-label="Modo de visualização">
+        {opts.map(opt => {
+          const { key, label } = opt
+          const Icon = opt.Icon
+          return (
+          <button
+            key={key}
+            onClick={() => onChange(key)}
+            aria-pressed={view === key}
+            className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+              view === key ? 'bg-museum-accent text-white shadow-md shadow-museum-accent/20' : 'text-museum-muted hover:text-museum-text'
+            }`}
+          >
+            <Icon className="w-3.5 h-3.5" /> {label}
+          </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
