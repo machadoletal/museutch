@@ -75,9 +75,14 @@ export function groupPearls(items) {
     // Item de destaque para preview (sequências com "destaque: sim"), senão o primeiro
     const destaqueItem = sorted.find(i => i.destaque === 'sim') ?? first
 
+    // Conversa que atravessou mais de um dia: guarda a data da última mensagem
+    const lastItem = sorted.reduce((m, i) => (parseDate(i.data) > parseDate(m.data) ? i : m), first)
+    const dataFim = lastItem.data !== first.data ? lastItem.data : null
+
     grupos.push({
       grupo_id,
       data:        first.data,
+      dataFim,
       ano:         parseAno(first.data),
       _date:       parseDate(first.data),  // usado só para ordenação
       grupo:       first.grupo,

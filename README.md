@@ -17,7 +17,6 @@ stories.
 | **Acervo** (Collection) | The full set of entries, with search and filters (person, year, type, group) and date sorting. Every entry has a direct link (`/#grupo_id`). |
 | **Jogo dos Cônjuges** (Spouses' Game) | A guessing game: a line appears, you try to remember who said it. |
 | **Ranking** | People ranked by how many entries they have in the archive. |
-| **Hall da Fama** (Hall of Fame) | A detailed profile per person — share of the archive, active years, most frequent entry type, timeline. |
 
 ## Stack
 

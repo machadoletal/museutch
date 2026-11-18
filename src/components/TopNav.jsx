@@ -2,7 +2,8 @@ const NAV_ITEMS = [
   { key: 'home',    label: 'Acervo',            icon: '🏛️' },
   { key: 'jogo',    label: 'Jogo dos Cônjuges',  icon: '🎲' },
   { key: 'ranking', label: 'Ranking',            icon: '🏆' },
-  { key: 'hall',    label: 'Hall da Fama',       icon: '🌟' },
+  // Hall da Fama oculto até os critérios serem revistos (página em pages/HallDaFama.jsx).
+  // { key: 'hall',    label: 'Hall da Fama',       icon: '🌟' },
   // Bracket oculto até ser otimizado (a página continua em pages/BracketDasPearls.jsx).
   // { key: 'bracket', label: 'Bracket',            icon: '⚔️' },
   { key: 'amigo',   label: 'Amigo Secreto',      icon: '🎁' },

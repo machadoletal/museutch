@@ -52,7 +52,7 @@ export default function SequenceModal({ group, onClose }) {
 
   if (!group) return null
 
-  const { items, isSequence, pessoas, data, grupo, grupo_id } = group
+  const { items, isSequence, pessoas, data, dataFim, grupo, grupo_id } = group
 
   function copyLink() {
     const { origin, pathname } = window.location
@@ -108,7 +108,7 @@ export default function SequenceModal({ group, onClose }) {
           {/* Cabeçalho */}
           <div className="flex flex-wrap items-center gap-2 text-xs text-museum-muted mb-4">
             <Calendar className="w-3.5 h-3.5" />
-            <span>{formatDate(data)}</span>
+            <span>{formatDate(data)}{dataFim && ` – ${formatDate(dataFim)}`}</span>
             {grupo && <><span className="text-museum-border">·</span><span>{grupo}</span></>}
           </div>
 

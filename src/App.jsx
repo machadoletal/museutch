@@ -16,7 +16,7 @@ import AmigoSecreto from './pages/AmigoSecreto'
 import { usePearls } from './hooks/usePearls'
 
 // Itens por página em cada modo de visualização
-const PAGE_SIZE = { grade: 12, conversa: 6 }
+const PAGE_SIZE = { grade: 12, conversa: 10 }
 
 function loadView() {
   try {
@@ -134,9 +134,13 @@ export default function App() {
                     ))}
                   </div>
                 ) : (
-                  <div className="max-w-2xl mx-auto space-y-5">
+                  // Duas colunas balanceadas pelo próprio navegador (CSS columns): cada entrada
+                  // fica inteira numa coluna e as colunas se ajustam para ter altura parecida.
+                  <div className="columns-1 lg:columns-2 gap-5">
                     {pageGroups.map(group => (
-                      <ConversationCard key={group.grupo_id} group={group} />
+                      <div key={group.grupo_id} className="break-inside-avoid mb-5">
+                        <ConversationCard group={group} />
+                      </div>
                     ))}
                   </div>
                 )}

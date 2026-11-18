@@ -13,7 +13,7 @@ function TextQuote({ texto, compact }) {
   )
 }
 
-export default function MediaRenderer({ item, compact = false }) {
+export default function MediaRenderer({ item, compact = false, chat = false }) {
   const { tipo, conteudo_texto: texto, url_midia: rawUrl } = item
   const hasText  = texto?.trim().length > 0
   const hasMedia = rawUrl?.trim().length > 0
@@ -49,6 +49,18 @@ export default function MediaRenderer({ item, compact = false }) {
             <span>🎵</span><span>Áudio — clique para ouvir</span>
           </div>
           {hasText && <TextQuote texto={texto} compact />}
+        </div>
+      )
+    }
+
+    // Modo conversa: player enxuto, sem moldura dupla, para caber no balão.
+    if (chat && useIframe) {
+      return (
+        <div className={hasText ? 'space-y-2' : undefined}>
+          <div className="rounded-xl overflow-hidden bg-black" style={{ height: '150px' }}>
+            <iframe src={url} title="player de áudio" allow="autoplay" className="w-full h-full" style={{ border: 'none' }} />
+          </div>
+          {hasText && <TextQuote texto={texto} compact={compact} />}
         </div>
       )
     }

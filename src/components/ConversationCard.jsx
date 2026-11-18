@@ -24,7 +24,7 @@ function hueOf(name) {
  * Mensagens seguidas da mesma pessoa compartilham o nome.
  */
 export default function ConversationCard({ group }) {
-  const { items, data, grupo, grupo_id } = group
+  const { items, data, dataFim, grupo, grupo_id } = group
   const [copied, setCopied] = useState(false)
 
   function copyLink() {
@@ -41,7 +41,7 @@ export default function ConversationCard({ group }) {
 
       <header className="flex items-center justify-between gap-3 px-5 pt-4 pb-3 border-b border-museum-border/60">
         <div className="text-xs text-museum-muted">
-          <time className="font-mono">{formatDate(data)}</time>
+          <time className="font-mono">{formatDate(data)}{dataFim && ` – ${formatDate(dataFim)}`}</time>
           {grupo && <span> · {grupo}</span>}
         </div>
         <button
@@ -68,9 +68,13 @@ export default function ConversationCard({ group }) {
                   {sender}
                 </p>
               )}
-              <div className="max-w-[92%] sm:max-w-[85%] rounded-2xl rounded-tl-md bg-museum-surface border border-museum-border px-4 py-2.5 space-y-2">
+              <div className={`rounded-2xl rounded-tl-md bg-museum-surface border border-museum-border space-y-2 ${
+                item.tipo === 'audio' && !item.conteudo_texto
+                  ? 'w-full max-w-[18rem] p-1.5'
+                  : 'max-w-[92%] sm:max-w-[85%] px-4 py-2.5'
+              }`}>
                 {item.titulo && <p className="font-serif font-bold text-museum-text">{item.titulo}</p>}
-                <MediaRenderer item={item} compact={false} />
+                <MediaRenderer item={item} compact={false} chat />
                 {item.observacoes && (
                   <p className="text-xs text-museum-muted italic border-l-2 border-museum-border pl-3">{item.observacoes}</p>
                 )}

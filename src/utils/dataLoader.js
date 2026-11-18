@@ -75,7 +75,9 @@ function normalizeRow(raw) {
     tipo:          String(raw.tipo       ?? 'texto').trim().toLowerCase(),
     conteudo_texto: String(raw.conteudo_texto ?? '').trim(),
     url_midia:     String(raw.url_midia  ?? '').trim(),
-    ordem:         parseInt(raw.ordem, 10) || 0,
+    // A ordem na sequência vem do número do item (i01, i02…); a coluna `ordem`,
+    // se ainda existir na planilha, tem prioridade.
+    ordem:         parseInt(raw.ordem, 10) || parseInt(String(raw.item_id ?? '').replace(/\D/g, ''), 10) || 0,
     sequencial:    String(raw.sequencial ?? 'nao').trim().toLowerCase(),
     destaque:      String(raw.destaque   ?? 'nao').trim().toLowerCase(),
     // campos extras opcionais
