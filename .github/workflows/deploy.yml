@@ -47,6 +47,7 @@ jobs:
         env:
           SHEET_ID: ${{ secrets.SHEET_ID }}
           SITE_PASSWORD: ${{ secrets.SITE_PASSWORD }}
+          VITE_AMIGO_SECRETO_URL: ${{ secrets.AMIGO_SECRETO_URL }}
 
       - name: Upload artifact para Pages
         uses: actions/upload-pages-artifact@v3

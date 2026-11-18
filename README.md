@@ -53,6 +53,28 @@ The `predev` / `prebuild` script (`scripts/build-data.mjs`) fetches the entries,
 encrypts the JSON with `SITE_PASSWORD` and writes `public/museu-data.enc.json`. Vite
 serves/bundles that file; the plaintext never touches disk.
 
+## Secret Santa
+
+The **Amigo Secreto** page handles sign-up and the draw. Since the site is static, the backend is a
+Google Apps Script ([`apps-script/amigo-secreto.gs`](apps-script/amigo-secreto.gs)): sign-ups live in
+a spreadsheet; the draw only stores a random seed, and each person's match is recomputed when they
+enter name + PIN. No match is readable anywhere, not even by the organiser. Anyone who gave an e-mail
+gets their match by e-mail at draw time. The candidate list is `PERMITIDOS` in the `.gs`.
+
+One-time setup:
+
+1. Create a new spreadsheet → *Extensions → Apps Script* and paste `amigo-secreto.gs`.
+2. *Project settings → Script properties*: add `ADMIN_KEY` (organiser key) and optionally
+   `REGRAS_FIXAS` (JSON like `{"A":"B"}`: A draws B if both take part; kept only here, never in the public repo).
+3. *Deploy → New deployment → Web app*: execute as **you**, access **anyone**; authorise e-mail sending
+   when asked. Copy the `/exec` URL.
+4. Local: `VITE_AMIGO_SECRETO_URL=<url>` in `.env`. Deploy: repository secret `AMIGO_SECRETO_URL`.
+5. To draw: Amigo Secreto page → *Área do organizador* → key → *Realizar sorteio*.
+
+Spouses can draw each other; the only restriction is the fixed rule (`REGRAS_FIXAS`).
+Nobody draws themselves. Logic test: `node scripts/test-sorteio.mjs`. Note: the Apps Script owner has
+technical access and could deliberately compute the matches from the `SORTEIO` seed — don't open it.
+
 ## Deploy
 
 A `git push` to `main` triggers the [`deploy.yml`](.github/workflows/deploy.yml)

@@ -52,6 +52,31 @@ O script de `predev`/`prebuild` (`scripts/build-data.mjs`) busca as entradas, ci
 JSON com `SITE_PASSWORD` e grava `public/museu-data.enc.json`. O Vite serve/empacota
 esse arquivo; o conteúdo em claro nunca toca o disco.
 
+## Amigo secreto
+
+A página **Amigo Secreto** permite inscrição e sorteio. Como o site é estático, o backend é um
+Google Apps Script ([`apps-script/amigo-secreto.gs`](apps-script/amigo-secreto.gs)): inscrições numa
+planilha; do sorteio só se guarda uma semente aleatória, e o par de cada pessoa é recalculado quando
+ela informa nome + PIN. Nenhum par fica legível em lugar nenhum, nem para o organizador. Quem
+informar e-mail recebe o par por e-mail na hora do sorteio. A lista de possíveis participantes está em
+`PERMITIDOS` no `.gs`.
+
+Configuração (uma vez):
+
+1. Crie uma planilha nova → *Extensões → Apps Script* e cole o conteúdo de `amigo-secreto.gs`.
+2. *Configurações do projeto → Propriedades do script*: adicione `ADMIN_KEY` (chave do organizador) e,
+   opcionalmente, `REGRAS_FIXAS` (JSON como `{"A":"B"}`: A tira B, se ambos participarem; fica
+   aqui e não no repositório público).
+3. *Implantar → Nova implantação → App da Web*: executar como **você**, acesso **qualquer pessoa**; autorize
+   o envio de e-mail quando pedido. Copie a URL `/exec`.
+4. Local: `VITE_AMIGO_SECRETO_URL=<url>` no `.env`. Deploy: secret `AMIGO_SECRETO_URL` no repositório.
+5. Para sortear: página Amigo Secreto → *Área do organizador* → chave → *Realizar sorteio*.
+
+Cônjuges podem se tirar; a única restrição é a regra fixa (`REGRAS_FIXAS`). Ninguém tira a
+si mesmo. Teste da lógica: `node scripts/test-sorteio.mjs`.
+Atenção: o dono do projeto Apps Script tem acesso técnico e, de propósito (rodando o código com a
+semente de `SORTEIO`), conseguiria calcular os pares — por isso não abra essa propriedade.
+
 ## Deploy
 
 `git push` para `main` dispara o workflow [`deploy.yml`](.github/workflows/deploy.yml),
