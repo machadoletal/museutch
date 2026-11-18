@@ -18,7 +18,6 @@ stories.
 | **Jogo dos Cônjuges** (Spouses' Game) | A guessing game: a line appears, you try to remember who said it. |
 | **Ranking** | People ranked by how many entries they have in the archive. |
 | **Hall da Fama** (Hall of Fame) | A detailed profile per person — share of the archive, active years, most frequent entry type, timeline. |
-| **Bracket** | A single-elimination bracket to crown the best entry by vote. |
 
 ## Stack
 

@@ -17,7 +17,6 @@ frases, os áudios e as imagens mais icônicas que o grupo produziu desde 2020 �
 | **Jogo dos Cônjuges** | Um jogo de adivinhação: aparece uma frase, você tenta lembrar quem disse. |
 | **Ranking** | Colocação das pessoas por número de pérolas no acervo. |
 | **Hall da Fama** | Perfil detalhado de cada pessoa — participação, anos ativos, tipo de pérola mais frequente, linha do tempo. |
-| **Bracket** | Chaveamento eliminatório para eleger a melhor pérola por votação. |
 
 ## Stack
 
